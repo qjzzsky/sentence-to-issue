@@ -126,15 +126,27 @@ you — including "you can skip this, the issue still goes through".
 
 ---
 
-## Real examples
+## Real examples — report your AI assistant's bug in one sentence
 
-Reports filed with this exact method (read-only evidence, privacy scan, `gh` submission,
-read-back verification):
+**Scenario: the open-source AI assistant you use on GitHub breaks.** Install this skill, tell
+the AI in one sentence what went wrong — it captures the evidence, scans it, summarizes, and
+files the issue for you.
 
-- [Desktop batch clarify — recommended option reads as pre-selected](https://github.com/NousResearch/hermes-agent/issues/137132)
-- [Viewport jumps to the upper half mid-chat](https://github.com/NousResearch/hermes-agent/issues/136914)
-- [Completed turns vanish after switching sessions](https://github.com/NousResearch/hermes-agent/issues/134290)
-- [`.restart_pending.json` never self-clears](https://github.com/NousResearch/hermes-agent/issues/127316)
+- **[#137132](https://github.com/NousResearch/hermes-agent/issues/137132)** — the recommended
+  option in a batch clarify card carries a resting highlight, so it reads as pre-selected;
+  the user skips it and the batch confirms with a question unanswered. *(feature request)*
+- **[#136914](https://github.com/NousResearch/hermes-agent/issues/136914)** — reading a long
+  transcript, the viewport jumped to the upper half by itself; three rows were missing the
+  display index, sending the session down a different read path.
+- **[#134290](https://github.com/NousResearch/hermes-agent/issues/134290)** — after switching
+  sessions, completed turns vanished from the view even though every row was still in the
+  database.
+- **[#127316](https://github.com/NousResearch/hermes-agent/issues/127316)** — a failed channel
+  left the restart marker stuck, so healthy channels silently stopped receiving their
+  gateway-online notice.
+
+All four came out of this workflow: read-only evidence → privacy scan → `gh` submission →
+read-back verification.
 
 ---
 
@@ -168,6 +180,17 @@ one-sentence-issue/
 Everything the assistant needs lives **inside `skills/one-sentence-issue/`** — that is the
 directory `gh skill install` copies, so a skill installed without it would be missing its
 scanner and templates.
+
+---
+
+## About the author
+
+**qjzzsky · 曲靖中中**
+
+- GitHub: [qjzzsky](https://github.com/qjzzsky)
+- Website: [qjzzsky.com](https://qjzzsky.com)
+- Bilibili: [space.bilibili.com/1546459](https://space.bilibili.com/1546459)
+- Weibo: [weibo.com/u/1074366780](https://weibo.com/u/1074366780)
 
 ---
 

@@ -107,14 +107,16 @@ issue 照发"这个选项。
 
 ---
 
-## 真实案例
+## 真实案例 —— 一句话替 AI 助手报 bug
 
-用这套方法（只读取证 + 隐私扫描 + `gh` 提交 + 读回验证）提的 issue（链接指向的原文标题为英文）：
+**场景：使用 GitHub 上的开源 AI 助手出了问题。** 装上这个技能，用一句话告诉 AI 哪里出了问题 —— 它会自动抓证据、扫描、总结，替你向开发者提交 issue。
 
-- [clarify 推荐项被高亮误读成已选中](https://github.com/NousResearch/hermes-agent/issues/137132)
-- [聊天中视口自己跳到上半段](https://github.com/NousResearch/hermes-agent/issues/136914)
-- [切会话后已完成的回合消失](https://github.com/NousResearch/hermes-agent/issues/134290)
-- [`.restart_pending.json` 不自清](https://github.com/NousResearch/hermes-agent/issues/127316)
+- **[#137132](https://github.com/NousResearch/hermes-agent/issues/137132)** — 桌面端批量提问卡片的推荐项自带浅色高亮，看着像已选中，用户跳过点击后提交，模型反馈有一题没选。（建议类）
+- **[#136914](https://github.com/NousResearch/hermes-agent/issues/136914)** — 聊天读到一半，视口自己跳到上半段；查出 3 行缺排序索引，读取改走了另一条路径。
+- **[#134290](https://github.com/NousResearch/hermes-agent/issues/134290)** — 切换会话再切回来，已完成的对话在界面上消失，但数据库里一行没少。
+- **[#127316](https://github.com/NousResearch/hermes-agent/issues/127316)** — 某个渠道投递失败后重启标记一直不清，其他正常渠道就再也收不到「网关在线」提示。
+
+四条全部由本工作流产出：只读取证 → 隐私扫描 → `gh` 提交 → 读回核对。
 
 ---
 
@@ -147,6 +149,17 @@ one-sentence-issue/
 
 AI 需要的东西**全在 `skills/one-sentence-issue/` 里面** —— `gh skill install` 复制的正是这个
 目录，放外面的话装完就缺扫描器和模板。
+
+---
+
+## 关于作者
+
+**qjzzsky · 曲靖中中**
+
+- GitHub：[qjzzsky](https://github.com/qjzzsky)
+- 个人网页：[qjzzsky.com](https://qjzzsky.com)
+- 哔哩哔哩：[space.bilibili.com/1546459](https://space.bilibili.com/1546459)
+- 微博：[weibo.com/u/1074366780](https://weibo.com/u/1074366780)
 
 ---
 
