@@ -129,7 +129,9 @@ you — including "you can skip this, the issue still goes through".
 
 ---
 
-## Real examples — report your AI assistant's bug in one sentence
+## Real examples
+
+### 1. The AI assistant itself breaks — one sentence, from inside the conversation
 
 **Scenario: the open-source AI assistant you use on GitHub breaks.** Install this skill, tell
 the AI in one sentence what went wrong — it captures the evidence, scans it, summarizes, and
@@ -148,7 +150,17 @@ files the issue for you.
   left the restart marker stuck, so healthy channels silently stopped receiving their
   gateway-online notice.
 
-All four came out of this workflow: read-only evidence → privacy scan → `gh` submission →
+### 2. A skill you installed breaks — file it in that skill's own repository
+
+**Scenario: a skill pulled from GitHub misbehaves.** You already have the reproduction, and
+that skill's repository is where its maintainer looks.
+
+- **[#21](https://github.com/isjiamu/gzh-design-skill/issues/21)** — an installed
+  WeChat-formatting skill trips the editor's content check: gradients are rejected in dark
+  mode. Suggested defaulting to solid colours, or warning at check time. *(closed — addressed
+  by the author)*
+
+All five came out of this workflow: read-only evidence → privacy scan → `gh` submission →
 read-back verification.
 
 ---

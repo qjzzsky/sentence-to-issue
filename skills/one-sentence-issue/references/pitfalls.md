@@ -15,14 +15,23 @@ The repo's sweeper bot usually labels within minutes.
 
 ## Images
 `gh issue create --attach './file.png#alt text'` uploads images and videos (up to 50 per
-command). If the body already contains `![alt](./file.png)`, that reference is rewritten to the
-uploaded URL. For a later comment: `gh issue comment <n> --attach './file.png#alt'`.
+command). For a later comment: `gh issue comment <n> --attach './file.png#alt'`.
+
+**The `--attach` path must match the body reference character for character** — body says
+`![alt](./file.png)`, so pass `./file.png#alt`. A mismatch (absolute path vs `./name`, or a
+different directory) makes gh *append* a second copy of the image instead of rewriting the
+reference, leaving a dead `./file.png` link in the published body.
 Deduping first: a screenshot the user pasted may already be enough evidence without re-uploading.
 
 ## Deduplication first
 `gh issue list --repo <r> --state all --search "<keywords>"` before filing. If a match exists,
 offer to comment on it instead. Repos with fast maintainers merge duplicates away within
 minutes — a second identical issue is noise.
+
+## git-bash hands POSIX paths to Python
+Inside git-bash/MSYS, `pwd` and `mktemp` yield `/e/...` and `/tmp/...`. A native Windows
+Python reads those as `C:\e\...` and `C:\tmp\...` — the file "does not exist". The script
+normalises with its `native()` helper; keep using it for any path that crosses into Python.
 
 ## `gh` is not logged in
 `gh auth login` opens a browser flow. If the user cannot or will not, fall back to delivering

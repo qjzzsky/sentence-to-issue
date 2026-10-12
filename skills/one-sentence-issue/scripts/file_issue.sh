@@ -4,6 +4,10 @@
 #   ./file_issue.sh --repo owner/name --title "Title" --body-file draft.md \
 #        [--attach './img.png#alt'] [--search "keywords"] [--skip-scan]
 #
+# --attach: the path must match the reference in the body character for character
+#           (e.g. body has ![alt](./img.png) -> pass './img.png#alt'). A mismatched
+#           path makes gh append a second copy instead of rewriting the reference.
+#
 # NOTE: there is deliberately NO --template flag. gh refuses --template together
 #       with --body-file, so fold the repository template into the draft first.
 #
@@ -16,8 +20,20 @@
 #
 # Exit codes: 0 ok · 2 blocked by a level-2 secret · 3 gh missing/unauthenticated
 #             4 usage error · 5 dedupe query failed · 6 unexpected output from gh create
+#             7 privacy scanner failed to run
 
 set -euo pipefail
+
+# git-bash/MSYS hands POSIX drive paths (/e/...) to a native Windows Python, which
+# reads them as C:\e\... and fails. This normalises drive paths ONLY; /tmp and /home
+# are real POSIX locations with no Windows equivalent, so nothing creates files there
+# (temp output goes through variables and pipes instead of mktemp).
+native() {
+  case "$1" in
+    /[A-Za-z]/*) printf '%s' "$1" | sed -E 's|^/([A-Za-z])/|\1:/|' ;;
+    *) printf '%s' "$1" ;;
+  esac
+}
 
 REPO="" TITLE="" BODY="" SEARCH="" SKIP_SCAN=0
 ATTACHES=()
@@ -55,19 +71,16 @@ fi
 # ---- 2. dedupe ---------------------------------------------------------------
 if [[ -n "$SEARCH" ]]; then
   echo "== dedupe / 查重 =="
-  ERR="$(mktemp)"
   set +e
-  OUT="$(gh issue list --repo "$REPO" --state all --search "$SEARCH" --limit 5 2>"$ERR")"
+  OUT="$(gh issue list --repo "$REPO" --state all --search "$SEARCH" --limit 5 2>&1)"
   QC=$?
   set -e
   if [[ $QC -ne 0 ]]; then
     echo "dedupe query failed (exit $QC) - NOT reading this as no-match." >&2
-    echo "查重查询失败，不会当成「无重复」继续提交。原始错误：" >&2
-    sed 's/^/  /' "$ERR" >&2
-    rm -f "$ERR"
+    echo "查重查询失败，不会当成「无重复」继续提交。原始输出：" >&2
+    printf '%s\n' "$OUT" | sed 's/^/  /' >&2
     exit 5
   fi
-  rm -f "$ERR"
   if [[ -n "$OUT" ]]; then
     echo "$OUT"
     echo
@@ -79,7 +92,7 @@ if [[ -n "$SEARCH" ]]; then
 fi
 
 # ---- 3. privacy scan on the draft -------------------------------------------
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(native "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")"
 SCAN="$SCRIPT_DIR/privacy_scan.py"
 PYTHON="$(command -v python3 || command -v python || true)"
 if [[ $SKIP_SCAN -eq 1 ]]; then
@@ -88,15 +101,20 @@ if [[ $SKIP_SCAN -eq 1 ]]; then
   echo "!! 已按 --skip-scan 跳过隐私扫描 —— 正文未经检查。"
 elif [[ -n "$PYTHON" && -f "$SCAN" ]]; then
   set +e
-  "$PYTHON" "$SCAN" "$BODY"
+  SCAN_OUT="$("$PYTHON" "$SCAN" "$BODY" 2>&1)"
   code=$?
   set -e
-  if [[ $code -eq 2 ]]; then
+  printf '%s\n' "$SCAN_OUT"
+  if [[ $code -eq 2 && "$SCAN_OUT" == *"LEVEL 2"* ]]; then
     echo
     echo "BLOCKED: level-2 secret found. Ask the user (second confirmation), then either"
     echo "         redact the file and re-run, or pass --skip-scan if they insist."
     echo "已拦截：正文含疑似密钥。须经用户二次确认。"
     exit 2
+  elif [[ $code -ne 0 && "$SCAN_OUT" != *"LEVEL"* ]]; then
+    echo "privacy scanner itself failed (exit $code) - refusing to file unchecked." >&2
+    echo "隐私扫描器没能运行 —— 不提交未经检查的正文。" >&2
+    exit 7
   fi
 fi
 
@@ -123,16 +141,18 @@ gh issue view "$NUMBER" --repo "$REPO" --json number,title,url,state --template 
   '{{.number}}  [{{.state}}]  {{.title}}
 {{.url}}'
 
-TMP="$(mktemp)"
-trap 'rm -f "$TMP"' EXIT
-gh issue view "$NUMBER" --repo "$REPO" --json body --jq '.body' > "$TMP"
-
 if [[ $SKIP_SCAN -eq 0 && -n "$PYTHON" && -f "$SCAN" ]]; then
+  LIVE="$(gh issue view "$NUMBER" --repo "$REPO" --json body --jq '.body')"
   set +e
-  "$PYTHON" "$SCAN" "$TMP"
+  SCAN2_OUT="$(printf '%s' "$LIVE" | "$PYTHON" "$SCAN" - 2>&1)"
   scan2=$?
   set -e
-  [[ $scan2 -eq 2 ]] && echo "WARNING: a secret landed in the live issue — redact it now." >&2
+  printf '%s\n' "$SCAN2_OUT"
+  if [[ $scan2 -eq 2 && "$SCAN2_OUT" == *"LEVEL 2"* ]]; then
+    echo "WARNING: a secret landed in the live issue - redact it now." >&2
+  elif [[ $scan2 -ne 0 && "$SCAN2_OUT" != *"LEVEL"* ]]; then
+    echo "WARNING: privacy scanner failed on the read-back (exit $scan2)." >&2
+  fi
 fi
 
 echo
