@@ -3,12 +3,15 @@
 > **File an issue in one sentence.**
 > 一句话提 GitHub issue — one sentence in, a filed GitHub issue out.
 
-Tell your AI assistant what broke, in one sentence. It freezes the scene, gathers whatever
-evidence your machine can reach, checks the draft for anything you would not want public,
-writes the report, files it with the `gh` CLI, then **reads it back** to prove it landed.
+Tell your AI assistant what broke, in one sentence. It **freezes the scene** (no refreshing,
+restarting, updating or closing anything meanwhile), gathers whatever evidence your machine
+can reach, checks the draft for anything you would not want public, writes the report in the
+repository's own language, files it with the `gh` CLI, then **reads it back** to prove it
+actually landed — and hands you the link.
 
-Works for **any software, any game, any web app** — not only AI tools — as long as your
-environment allows the capture and you grant the permission.
+Works for **any software, any game, any web app** — not only AI tools — provided two things
+hold: **the project is open source and hosted on GitHub** (that is where `gh` files the
+issue), and your environment allows the capture with your permission.
 
 ---
 
