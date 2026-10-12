@@ -1,5 +1,7 @@
 # One-Sentence Issue
 
+[**中文简体**](./README.zh-CN.md) · English
+
 > **File an issue in one sentence.**
 > 一句话提 GitHub issue — one sentence in, a filed GitHub issue out.
 
@@ -15,7 +17,7 @@ issue), and your environment allows the capture with your permission.
 
 ---
 
-## 30 seconds
+## Quick start (30 seconds)
 
 Install:
 
@@ -90,13 +92,14 @@ Without them the workflow still works — it degrades to handing you the finishe
 
 ---
 
-## Language
+## Which language is used where
 
 | Layer | Language |
 |---|---|
-| Chat with you | whatever language you write in |
+| The assistant's replies to you | whatever language you write in |
 | The issue body | the target repository's language (English by default) |
 | `SKILL.md` + `references/` | English — they are read by the assistant, not by you |
+| This README | English here · 中文 in [README.zh-CN.md](./README.zh-CN.md) |
 
 ---
 

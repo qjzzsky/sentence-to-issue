@@ -1,5 +1,7 @@
 # 一句话提 GitHub issue
 
+[**English**](./README.md) · 中文
+
 > **一句话进去，一条 GitHub issue 出来。**
 > One-Sentence Issue · File an issue in one sentence.
 
@@ -76,13 +78,14 @@ https://github.com/<owner>/<repo>/issues/123
 
 ---
 
-## 语言
+## 各处用什么语言
 
 | 层 | 语言 |
 |---|---|
-| 跟你对话 | 你用什么语言，它就用什么语言 |
+| AI 回复你 | 你用什么语言，它就用什么语言 |
 | issue 正文 | 跟目标仓库走，默认英文 |
 | `SKILL.md` + `references/` | 英文——那是给 AI 读的，不是给你读的 |
+| 本 README | 中文在此 · English in [README.md](./README.md) |
 
 ---
 
