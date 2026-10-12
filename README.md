@@ -73,11 +73,11 @@ Without them the workflow still works — it degrades to handing you the finishe
 
 ---
 
-## The 12 steps
+## The issue submission steps
 
-| # | What it does | How the AI does it |
+| # | What the AI does | How the AI does it |
 |---|---|---|
-| 1 | Reads your sentence | What broke? Which GitHub repo? What evidence do you have? |
+| 1 | Reads your sentence | Works out from your description what broke, which GitHub repository it belongs to, and what evidence there is |
 | 2 | Finds the right repo | Two sources to check: the project's own git remote, or the link you gave |
 | 3 | Checks available tools | Checks the permissions and skills it can draw on — file access and a shell mean more evidence, a chat window alone means less |
 | 4 | Before it digs in | It warns you: "Don't refresh, restart, update, or close anything. Anything else you remember about the bug, send it over." |
