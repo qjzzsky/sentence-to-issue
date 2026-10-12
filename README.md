@@ -1,19 +1,19 @@
 # One-Sentence Issue
 
-[**中文简体**](./README.zh-CN.md) · English
+> **File what you found in one sentence — straight to a GitHub repo's issue.**
 
-> **File an issue in one sentence.**
-> 一句话提 GitHub issue — one sentence in, a filed GitHub issue out.
+Install the skill, and when a bug shows up, tell your AI assistant what broke. It starts
+investigating. **Don't refresh, restart, update, or close anything meanwhile. If you have
+more detail, send it over.**
 
-Tell your AI assistant what broke, in one sentence. It **freezes the scene** (no refreshing,
-restarting, updating or closing anything meanwhile), gathers whatever evidence your machine
-can reach, checks the draft for anything you would not want public, writes the report in the
-repository's own language, files it with the `gh` CLI, then **reads it back** to prove it
-actually landed — and hands you the link.
+While investigating it gathers evidence where your permissions allow, scrubs anything
+sensitive, finds the matching GitHub repository, and files the issue with `gh`.
 
-Works for **any software, any game, any web app** — not only AI tools — provided two things
-hold: **the project is open source and hosted on GitHub** (that is where `gh` files the
-issue), and your environment allows the capture with your permission.
+When that is done it checks everything once more, confirms the issue went through, and hands
+you the link.
+
+**As long as the program is open source and hosted on GitHub, anything can be reported
+through this skill — software, games, web apps, AI-agent skills alike.**
 
 ---
 
@@ -75,20 +75,20 @@ Without them the workflow still works — it degrades to handing you the finishe
 
 ## The 12 steps
 
-| # | Step | Detail |
+| # | What it does | How the AI does it |
 |---|---|---|
-| 1 | Parse your one sentence | what broke, which repo, what evidence you have |
-| 2 | Resolve the repository | **two sources only**: local `git remote`, or the link/repo you gave |
-| 3 | Capability probe | decides how deep it can capture — chat only ⇒ L0 |
-| 4 | Freeze the scene | "don't refresh, restart, update or close anything" |
-| 5 | Capture L0→L3 | **read-only**, uncaptured evidence marked `not captured` |
-| 6 | Deduplicate | existing issue ⇒ offer to comment instead |
-| 7 | Repo's own issue template | fits ⇒ use it; **asks for logs ⇒ asks you first** |
-| 8 | Privacy check | level 1 warns once · **level 2 (keys/tokens) needs a second confirmation** |
-| 9 | Draft the report | six sections, in the repo's language |
-| 10 | **You approve** | the full Title + Body, before anything is sent |
-| 11 | File, attach, read back | `gh issue create --attach …` then `gh issue view …` re-scan |
-| 12 | (optional) Watch replies | `gh issue view <n> --comments` |
+| 1 | Reads your sentence | What broke? Which GitHub repo? What evidence do you have? |
+| 2 | Finds the right repo | Two sources to check: the project's own git remote, or the link you gave |
+| 3 | Checks available tools | Checks the permissions and skills it can draw on — file access and a shell mean more evidence, a chat window alone means less |
+| 4 | Before it digs in | It warns you: "Don't refresh, restart, update, or close anything. Anything else you remember about the bug, send it over." |
+| 5 | Investigates | The bug and the key facts only, no files touched, recorded as found |
+| 6 | Checks for duplicates | If a similar issue already exists → it suggests adding detail in the comments instead of opening a new one |
+| 7 | Checks the issue template | Uses the repository's own template when there is one; asks you first if the template wants logs |
+| 8 | Checks for sensitive data | Warns you when something looks like a leak. Nothing reaches the issue without your consent. Ordinary private details are flagged once; passwords and keys need a second confirmation |
+| 9 | Writes the issue | Body written to the target repository's requirements |
+| 10 | Shows you the issue | The full title and body for review — it publishes only after you approve |
+| 11 | Files and verifies | Files it, then checks it again once it is visible on GitHub |
+| 12 | Follows up (optional) | You can ask the AI to track the issue's progress |
 
 ---
 
@@ -99,11 +99,11 @@ Without them the workflow still works — it degrades to handing you the finishe
 | The assistant's replies to you | whatever language you write in |
 | The issue body | the target repository's language (English by default) |
 | `SKILL.md` + `references/` | English — they are read by the assistant, not by you |
-| This README | English here · 中文 in [README.zh-CN.md](./README.zh-CN.md) |
+| This README | English |
 
 ---
 
-## Privacy: warn, then your call
+## Privacy: reminders only
 
 **The default is: capture nothing sensitive, upload nothing on your own initiative.**
 
@@ -120,7 +120,7 @@ you — including "you can skip this, the issue still goes through".
 
 ---
 
-## Boundaries
+## What it does and doesn't do
 
 - **GitHub only.** Targets outside GitHub (Discord, forums, support desks) ⇒ you get the whole
   body as one block to paste yourself. That is a success, not a failure.
@@ -132,7 +132,7 @@ you — including "you can skip this, the issue still goes through".
 
 ---
 
-## Real examples
+## Real feedback from developers — successful cases
 
 ### 1. The AI assistant itself breaks — one sentence, from inside the conversation
 
@@ -168,17 +168,17 @@ read-back verification.
 
 ---
 
-## How it differs from what already exists
+## How we compare with similar projects
 
 | Existing | What it does | What this adds |
 |---|---|---|
 | issue skills bound to one project | file issues for that project | **any repository**, resolved from `git remote` or your link |
 | "deep dive then save locally" | writes a file, never files | actually files, then reads back |
-| single-repo bug report skill | sanitized draft, one project | **L0→L3 layered capture**, an executable privacy scanner, template awareness |
+| single-repo bug report skill | sanitized draft, one project | **layered investigation**, an executable privacy scanner, template awareness |
 
 ---
 
-## Layout
+## File structure
 
 ```
 one-sentence-issue/
@@ -209,6 +209,9 @@ scanner and templates.
 - Website: [qjzzsky.com](https://qjzzsky.com)
 - Bilibili: [space.bilibili.com/1546459](https://space.bilibili.com/1546459)
 - Weibo: [weibo.com/u/1074366780](https://weibo.com/u/1074366780)
+
+Built with [Hermes Agent](https://github.com/NousResearch/hermes-agent) and Xiaomi
+MiMo v2.6 Flash — authored, tested, and published with their help.
 
 ---
 
