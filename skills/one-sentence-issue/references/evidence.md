@@ -22,6 +22,10 @@ escalate on your own.
 
 ## The four layers
 
+The level says **how deep the capture can go**, not what kind of tool it is: the same browser
+can be L1 (read the console) or L3 (a dedicated capture skill you installed). Pick the level
+from the result, not the category.
+
 ### L0 — what the user gives you (always available)
 Their description, pasted error text, screenshots, screen recordings.
 Ask for it only if it is missing and it matters; the user may also volunteer extra detail

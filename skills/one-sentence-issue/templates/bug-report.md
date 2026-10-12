@@ -39,5 +39,5 @@ What actually happened. Multi-line error output goes in a code block, quoted ver
 - Related issues:
 ```
 
-If the repository supplies its own template, use its headings instead
-(`gh issue create --template "<name>"`).
+If the repository supplies its own template, fold its headings into this body and file with
+`--body-file` only — `gh issue create` refuses `--template` when `--body-file` is present.

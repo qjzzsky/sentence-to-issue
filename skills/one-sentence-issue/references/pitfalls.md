@@ -4,13 +4,14 @@
 Some repos force `Debug Report`-style fields in the browser. The `gh` CLI does not go through
 the web form, so those requirements do not apply when you file from the command line — but
 **never treat that as permission to upload logs**. Ask the user (Step 7), accept "no", and note
-`logs not attached` in the body.
+`logs not attached` in the body. Note that `--attach` accepts **images and video only** —
+a log file cannot ride along that way; the excerpt has to go into the body text.
 
 ## Labels come back empty
-External contributors cannot add labels, and some templates reference labels that do not exist
-in the repo. `--label` fails silently — the `labels` array in the response stays empty.
-**Empty labels are normal.** Do not retry, do not report it as an error; the repo's sweeper
-bot usually labels within minutes.
+**This flow never passes `--label`**, so a fresh issue shows an empty `labels` array —
+that is normal, not a failure. Do not add labels yourself: external contributors have no
+triage permission, and some templates reference labels the repo does not even have.
+The repo's sweeper bot usually labels within minutes.
 
 ## Images
 `gh issue create --attach './file.png#alt text'` uploads images and videos (up to 50 per

@@ -68,21 +68,31 @@ A hit → ask the user whether to add a comment to the existing issue instead of
 ```bash
 gh api repos/<owner/repo>/contents/.github/ISSUE_TEMPLATE --jq '.[].name'
 ```
-- **Template fits** → start from it: `gh issue create --template "<name>"`, and use *its* section headings.
-  Using `gh` also skips web-only required fields (forms that force a log upload).
+- **Template fits** → fetch it and fold its headings into your draft:
+  ```bash
+  gh api repos/<owner/repo>/contents/.github/ISSUE_TEMPLATE/<file> --jq .content | base64 -d
+  ```
+  Fill those headings from your evidence, then file with `--body-file` **only**.
+  ⚠️ `gh issue create` **rejects** `--template` combined with `--body`/`--body-file`
+  (`--template is not supported when using --body or --body-file`) — merge first, then file.
+  Filing through `gh` also skips web-only required fields (forms that force a log upload).
 - **Template demands uploading logs/debug output** → **ask the user first**:
 
-> **ZH:** 这个仓库的模板要求附日志。**要我把日志传上去吗？**
-> · 传：日志和配置会上传到**公开**的粘贴服务，凭链接的人都能看到。
-> · 不传也行，我照常提 issue，正文里标 `logs not attached`，维护者需要时会再找你。
+> **ZH:** 这个仓库的模板要求附日志。**要我帮你把日志附上吗？**
+> · 日志文件没法用命令行直接传；我可以把相关片段**贴进正文**（你在网页上传也行）——
+>   发出去后凭链接的人都能看到，贴之前我会先扫一遍敏感信息。
+> · 不附也行，我照常提 issue，正文里标 `logs not attached`，维护者需要时会再找你。
 > 你决定。
 >
-> **EN:** This repo's template asks for logs. **Should I attach them?**
-> · If yes: your config and logs get uploaded to a **public** paste service — anyone with the link can read them.
-> · If no: I'll file it anyway with `logs not attached`; maintainers can ask later.
+> **EN:** This repo's template asks for logs. **Want me to include them?**
+> · Log files cannot be attached from the CLI — I can paste the relevant excerpt into the
+>   body (or you can upload it on the web). It becomes public to anyone holding the link,
+>   and I'll scan it for secrets first.
+> · Or skip it: I'll file with `logs not attached` and maintainers can ask later.
 > Your call.
 
-Scan the logs for secrets **before** offering to upload. If the user declines, proceed without them.
+`--attach` takes **images and video only** — a log file cannot ride along that way.
+Scan any excerpt for secrets **before** it goes in. If the user declines, proceed without them.
 
 ### 8. Privacy check — reminder, not a veto
 Run `scripts/privacy_scan.py <draft-file>`. Two levels (see `references/privacy.md`):
@@ -106,20 +116,34 @@ Show the **full Title and Body**. Nothing is sent until the user explicitly says
 Never treat silence, "ok", or an earlier instruction as permission for *this* issue.
 
 ### 11. File it, attach images, read it back
+
+Preferred — one script runs dedupe → scan → file → read back → re-scan, in that order:
+```bash
+skills/one-sentence-issue/scripts/file_issue.sh \
+  --repo <owner/repo> --title "<title>" --body-file draft.md \
+  [--attach './screenshot.png#what it shows']
+```
+**Call it only after Step 10** — the script has no approval gate of its own.
+
+Or by hand:
 ```bash
 gh issue create --repo <owner/repo> --title "<title>" --body-file draft.md \
-  [--template "<name>"] [--attach './screenshot.png#what it shows']
+  [--attach './screenshot.png#what it shows']
 ```
+⚠️ Never put `--template` beside `--body-file`: gh rejects the combination outright.
+Merge the template into the draft first (Step 7).
+
 Then verify — a successful command is not a successful report:
 ```bash
 gh issue view <number> --json body,title,url,state
 ```
 Re-run the privacy scan on what actually landed, then hand over the URL.
-Images are supported by `--attach` (up to 50 files); in a follow-up comment use
+Images ride along with `--attach` (up to 50 files); a follow-up comment takes them too:
 `gh issue comment <n> --attach './img.png#alt'`.
 
-**Labels will be empty** — external contributors have no permission to add them and some
-templates reference labels that do not exist. That is normal, not a failure.
+**This flow never passes `--label`**, so a fresh issue shows an empty `labels` array — that
+is normal. Do not add labels yourself: external contributors have no permission, and the
+repo's sweeper labels it within minutes.
 
 ### 12. (Optional) Watch for replies
 ```bash

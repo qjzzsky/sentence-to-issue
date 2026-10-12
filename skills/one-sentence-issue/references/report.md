@@ -33,7 +33,10 @@ Its headings win; these six are only the fallback. Get the list with:
 gh api repos/<owner/repo>/contents/.github/ISSUE_TEMPLATE --jq '.[].name'
 ```
 
-and start the body from it with `gh issue create --template "<name>"`. Using `gh` also skips
+then fetch it and fold its headings into your draft:
+`gh api repos/<r>/contents/.github/ISSUE_TEMPLATE/<file> --jq .content | base64 -d`.
+File with `--body-file` only — **gh rejects `--template` next to `--body-file`**
+(`--template is not supported when using --body or --body-file`). Using `gh` also skips
 web-only required fields (forms that only exist in the browser).
 
 Some templates ask for a debug/log upload. That is Step 7 of the flow: ask the user, explain

@@ -42,8 +42,13 @@ https://github.com/<owner>/<repo>/issues/123
 
 | 路径 | 命令 |
 |---|---|
-| **A. `gh skill`**（Claude Code、Cursor、Codex、Copilot、Gemini CLI 等 48 种） | `gh skill install qjzzsky/one-sentence-issue` |
-| **B. 技能类助手**（Hermes 等） | `git clone https://github.com/qjzzsky/one-sentence-issue.git ~/.hermes/skills/one-sentence-issue` |
+| **A. `gh skill`**（Claude Code、Cursor、Codex、Copilot、Gemini CLI 等 48 种） | `gh skill install qjzzsky/one-sentence-issue --agent claude-code` |
+| **B. Hermes** | `hermes skills install qjzzsky/one-sentence-issue` |
+| **C. 手动 clone** | `git clone https://github.com/qjzzsky/one-sentence-issue.git <你的技能目录>/one-sentence-issue` |
+
+> 技能目录**因平台而异**（Windows 与 Unix 不是一个路径），用 `hermes skills list` 看你的在哪。
+> `gh skill install` 不带技能名时只会**列出**仓库里的技能，脚本化调用要写全：
+> `gh skill install qjzzsky/one-sentence-issue one-sentence-issue --agent claude-code`
 
 **依赖**：`gh` 命令行（[cli.github.com](https://cli.github.com)）+ `gh auth login`。
 没有它也能用——会降级成把写好的正文整块交给你，你自己贴网页。
@@ -104,7 +109,7 @@ issue 照发"这个选项。
 
 ## 真实案例
 
-用这套方法（只读取证 + 隐私扫描 + `gh` 提交 + 读回验证）提的 issue：
+用这套方法（只读取证 + 隐私扫描 + `gh` 提交 + 读回验证）提的 issue（链接指向的原文标题为英文）：
 
 - [clarify 推荐项被高亮误读成已选中](https://github.com/NousResearch/hermes-agent/issues/137132)
 - [聊天中视口自己跳到上半段](https://github.com/NousResearch/hermes-agent/issues/136914)
@@ -129,7 +134,7 @@ issue 照发"这个选项。
 one-sentence-issue/
 ├── README.md / README.zh-CN.md
 ├── LICENSE · .gitignore
-├── AGENTS.md, CLAUDE.md          一行指向 SKILL.md
+├── AGENTS.md, CLAUDE.md          短指引，指向 SKILL.md
 └── skills/
     └── one-sentence-issue/
         ├── SKILL.md              工作流本体（AI 读）

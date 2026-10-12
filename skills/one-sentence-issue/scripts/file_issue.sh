@@ -2,33 +2,37 @@
 # file_issue.sh — file a GitHub issue and read it back to prove it landed.
 #
 #   ./file_issue.sh --repo owner/name --title "Title" --body-file draft.md \
-#        [--template "Bug Report"] [--attach './img.png#alt'] [--search "keywords"]
+#        [--attach './img.png#alt'] [--search "keywords"] [--skip-scan]
+#
+# NOTE: there is deliberately NO --template flag. gh refuses --template together
+#       with --body-file, so fold the repository template into the draft first.
 #
 # What it guarantees:
 #   1. gh exists and is authenticated (fails loudly otherwise)
-#   2. optional dedupe pass before filing
+#   2. optional dedupe - a failed query aborts instead of reading as no-match
 #   3. privacy scan on the draft  (level 2 aborts: ask the user first)
 #   4. create the issue
 #   5. read the body back and scan AGAIN — a successful command is not a successful report
 #
-# Exit codes: 0 ok · 2 blocked by a level-2 secret · 3 gh missing/unauthenticated · 4 usage
+# Exit codes: 0 ok · 2 blocked by a level-2 secret · 3 gh missing/unauthenticated
+#             4 usage error · 5 dedupe query failed · 6 unexpected output from gh create
 
 set -euo pipefail
 
-REPO="" TITLE="" BODY="" TEMPLATE="" SEARCH=""
+REPO="" TITLE="" BODY="" SEARCH="" SKIP_SCAN=0
 ATTACHES=()
 
-usage() { sed -n '2,12p' "$0"; exit 4; }
+usage() { sed -n '2,19p' "$0"; exit 4; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --repo)     REPO="$2"; shift 2 ;;
     --title)    TITLE="$2"; shift 2 ;;
     --body-file) BODY="$2"; shift 2 ;;
-    --template) TEMPLATE="$2"; shift 2 ;;
-    --search)   SEARCH="$2"; shift 2 ;;
-    --attach)   ATTACHES+=("$2"); shift 2 ;;
-    -h|--help)  usage ;;
+    --search)    SEARCH="$2"; shift 2 ;;
+    --attach)    ATTACHES+=("$2"); shift 2 ;;
+    --skip-scan) SKIP_SCAN=1; shift ;;
+    -h|--help)   usage ;;
     *) echo "unknown option: $1" >&2; usage ;;
   esac
 done
@@ -51,8 +55,21 @@ fi
 # ---- 2. dedupe ---------------------------------------------------------------
 if [[ -n "$SEARCH" ]]; then
   echo "== dedupe / 查重 =="
-  if gh issue list --repo "$REPO" --state all --search "$SEARCH" --limit 5 2>&1 | grep -q .; then
-    gh issue list --repo "$REPO" --state all --search "$SEARCH" --limit 5
+  ERR="$(mktemp)"
+  set +e
+  OUT="$(gh issue list --repo "$REPO" --state all --search "$SEARCH" --limit 5 2>"$ERR")"
+  QC=$?
+  set -e
+  if [[ $QC -ne 0 ]]; then
+    echo "dedupe query failed (exit $QC) - NOT reading this as no-match." >&2
+    echo "查重查询失败，不会当成「无重复」继续提交。原始错误：" >&2
+    sed 's/^/  /' "$ERR" >&2
+    rm -f "$ERR"
+    exit 5
+  fi
+  rm -f "$ERR"
+  if [[ -n "$OUT" ]]; then
+    echo "$OUT"
     echo
     echo "Possible match above. If it is the same problem, comment on it instead."
     echo "上面可能已有同类 issue —— 如果是同一个问题，建议补评论而不是新开。"
@@ -65,7 +82,11 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCAN="$SCRIPT_DIR/privacy_scan.py"
 PYTHON="$(command -v python3 || command -v python || true)"
-if [[ -n "$PYTHON" && -f "$SCAN" ]]; then
+if [[ $SKIP_SCAN -eq 1 ]]; then
+  echo
+  echo "!! privacy scan SKIPPED by --skip-scan - filing unchecked."
+  echo "!! 已按 --skip-scan 跳过隐私扫描 —— 正文未经检查。"
+elif [[ -n "$PYTHON" && -f "$SCAN" ]]; then
   set +e
   "$PYTHON" "$SCAN" "$BODY"
   code=$?
@@ -81,11 +102,17 @@ fi
 
 # ---- 4. file it --------------------------------------------------------------
 ARGS=(issue create --repo "$REPO" --title "$TITLE" --body-file "$BODY")
-[[ -n "$TEMPLATE" ]] && ARGS+=(--template "$TEMPLATE")
 for f in ${ATTACHES[@]+"${ATTACHES[@]}"}; do ARGS+=(--attach "$f"); done
 
 echo "== filing / 提交 =="
 URL="$(gh "${ARGS[@]}")"
+
+# gh prints one URL; anything else would corrupt the number parsed below.
+if [[ ! "$URL" =~ ^https://github\.com/[^/]+/[^/]+/issues/[0-9]+$ ]]; then
+  echo "unexpected output from gh issue create, refusing to parse a number:" >&2
+  printf '%s\n' "$URL" >&2
+  exit 6
+fi
 echo "$URL"
 NUMBER="${URL##*/}"
 
@@ -100,7 +127,7 @@ TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
 gh issue view "$NUMBER" --repo "$REPO" --json body --jq '.body' > "$TMP"
 
-if [[ -n "$PYTHON" && -f "$SCAN" ]]; then
+if [[ $SKIP_SCAN -eq 0 && -n "$PYTHON" && -f "$SCAN" ]]; then
   set +e
   "$PYTHON" "$SCAN" "$TMP"
   scan2=$?
@@ -110,5 +137,5 @@ fi
 
 echo
 echo "Filed and verified / 已提交并读回核对: $URL"
-echo "Labels will be empty — external contributors cannot add them (normal, not a failure)."
-echo "标签为空属正常：外部贡献者无权打标签。"
+echo "Labels are empty because this flow never passes --label (normal, not a failure)."
+echo "标签为空属正常：本流程不传 --label。"

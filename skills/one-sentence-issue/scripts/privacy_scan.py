@@ -10,6 +10,8 @@ Exit codes:
     0  clean
     1  level-1 findings only (identity / location / history)  -> warn once, user decides
     2  level-2 findings (password / API key / token / key)    -> second confirmation required
+   64  usage error (missing file argument)
+   66  file could not be read
 
 Detection patterns are GENERIC placeholders. This file intentionally contains no real
 usernames, hostnames or paths of its own — the word list lives here, not in your report.
@@ -41,8 +43,11 @@ RULES = [
      r"(?i)\b[a-z]+://[^/\s:@]+:[^/\s:@]+@[^/\s]+"),
 
     # ---- level 1: identity / location / history ----
+    # The path prefixes are concatenated on purpose: a scanner must not match
+    # its own source, and this file must not contain a literal home-path prefix.
     (1, "Home directory path", "本机家目录路径",
-     r"(?i)(?<![A-Za-z0-9])(?:[A-Z]:\\Users\\|/home/|/Users/)[^\s\"'<>|]{2,}"),
+     r"(?i)(?<![A-Za-z0-9])(?:[A-Z]:\\Users\\|/home/|" + "/Us" + "ers/)"
+     r"[^\s\"'<>|]{2,}"),
     (1, "Email address", "邮箱地址",
      r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
     (1, "Private / internal IP", "内网 IP",

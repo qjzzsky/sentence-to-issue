@@ -44,14 +44,23 @@ Nothing leaves your machine until you have seen the entire body and said yes.
 
 ```bash
 gh skill install qjzzsky/one-sentence-issue                 # interactive
-gh skill install qjzzsky/one-sentence-issue --agent cursor  # specific agent
+gh skill install qjzzsky/one-sentence-issue --agent cursor  # non-interactive, one agent
+gh skill install qjzzsky/one-sentence-issue one-sentence-issue --agent claude-code
+#  ^ plain form for scripts: repository, then skill name
 ```
 
-**Path B — any skill-based assistant (Hermes, custom setups)**
+**Path B — Hermes**
 
 ```bash
-git clone https://github.com/qjzzsky/one-sentence-issue.git \
-  ~/.hermes/skills/one-sentence-issue
+hermes skills install qjzzsky/one-sentence-issue
+```
+
+`hermes skills install` also takes a direct `SKILL.md` URL. If you would rather clone by
+hand, put it in the directory `hermes skills list` reports for your platform — the skills
+folder is **not** the same path on Windows and Unix:
+
+```bash
+git clone https://github.com/qjzzsky/one-sentence-issue.git <your-skills-dir>/one-sentence-issue
 ```
 
 **Requirements:** the `gh` CLI ([cli.github.com](https://cli.github.com)) and `gh auth login`.
@@ -145,7 +154,7 @@ read-back verification):
 one-sentence-issue/
 ├── README.md / README.zh-CN.md
 ├── LICENSE · .gitignore
-├── AGENTS.md, CLAUDE.md          one-line pointers to SKILL.md
+├── AGENTS.md, CLAUDE.md          short pointers to SKILL.md
 └── skills/
     └── one-sentence-issue/
         ├── SKILL.md              the workflow (read by the assistant)
