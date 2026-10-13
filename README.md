@@ -6,9 +6,10 @@ Install the skill, and when a bug shows up, tell your AI assistant what broke. I
 investigating. **Don't refresh, restart, update, or close anything meanwhile. If you have
 more detail, send it over.**
 
-While investigating it gathers evidence where your permissions allow, flags anything that
-looks sensitive **for you to decide**, finds the matching GitHub repository, and files the
-issue with `gh`.
+While investigating it gathers evidence where your permissions allow, **redacts** anything
+sensitive in the draft, **shows you exactly what it removed**, and only asks you to supply
+those details when the repository's own template requires them. Then it finds the matching
+GitHub repository and files the issue with `gh`.
 
 When that is done it checks everything once more, confirms the issue went through, and hands
 you the link.
@@ -85,7 +86,7 @@ Without them the workflow still works — it degrades to handing you the finishe
 | 5 | Investigates | The bug only, recorded as found, no files touched |
 | 6 | Checks for duplicates | If a similar issue already exists → it suggests adding detail in the comments instead of opening a new one |
 | 7 | Checks the issue template | Uses the repository's own template when there is one; if the template wants logs, it asks you first |
-| 8 | Checks for sensitive data | Warns you when something looks like a leak. Nothing reaches the issue without your consent. Ordinary private details are flagged once; passwords and keys need a second confirmation |
+| 8 | Redacts by default | Replaces personal details and secrets with `<redacted>`, shows you the list of what was removed, then runs the scanner — a non-zero exit means redaction is incomplete, so it redacts and re-runs. Nothing reaches the issue without your consent |
 | 9 | Writes the issue | Body written to the target repository's requirements |
 | 10 | Shows you the issue | The full title and body for review — it publishes only after you approve |
 | 11 | Files and verifies | Files it, then checks it again once it is visible on GitHub |
@@ -120,21 +121,23 @@ from memory — see `skills/sentence-to-issue/references/evidence.md`.
 
 ---
 
-## Privacy: reminders only
+## Privacy: redacted by default
 
-**The default is: capture nothing sensitive, upload nothing on your own initiative.**
+**The default is: redact what is sensitive, show you the list, upload nothing on its own
+initiative.** Personal details and secrets are replaced with `<redacted>` in the draft, and
+you are shown what was removed before anything is filed.
 
 | Level | Examples | Behaviour |
 |---|---|---|
-| 1 — identity / location / history | username, local paths, chat history | warn **once**, you decide |
-| 2 — secrets | password, API key, token, private key | **second confirmation**: the consequence first, then you decide |
+| 1 — identity / location / history | username, local paths, chat history | redacted by default; offered back to you **only if the repo's template requires it** |
+| 2 — secrets | password, API key, token, private key | redacted always; leaves only when you name that exact value |
 
-Content you pasted yourself gets the same warnings. If you insist after the warning, it files
-as you say.
-
-It never uploads a log file for you — no command does. When a repository template demands
-logs, it asks you: paste an excerpt into the body, upload it yourself on the web, or skip it
-("the issue still goes through").
+The scanner is a **gate**, not a reminder: a non-zero exit means the redaction pass missed
+something, so it redacts and re-runs rather than asking you to send as-is. When the
+repository does ask for content it redacted, it offers — in order — pasting an excerpt into
+the body (re-scanned before and after), `gh gist create` for a whole file (**you pick public
+or secret every time**), or you uploading it yourself. `gh issue create --attach` takes only
+images and video, so a log file cannot ride along that way.
 
 **What this is not:** the scanner is heuristic, not a guarantee. A value that is split across
 lines, spaced out, or encoded in some other way can still slip past it — we are careful, not

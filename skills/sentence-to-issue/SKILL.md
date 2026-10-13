@@ -89,35 +89,55 @@ gh api repos/<owner/repo>/contents/.github/ISSUE_TEMPLATE --jq '.[].name'
     There is no heading to fold — read them as a field list instead.
   - `.md` templates carry YAML frontmatter (`--- name/about/title/labels/assignees ---`).
     Strip it first, or you will send `labels: ''` and friends verbatim.
-- **Template demands uploading logs/debug output** → **ask the user first**:
+- **The template or CONTRIBUTING explicitly requires content you redacted** → **ask the
+  user first**, quoting the requirement verbatim (full rules in `references/privacy.md`):
 
-> **ZH:** 这个仓库的模板要求附日志。**要我帮你把日志附上吗？**
-> · 日志文件没法用命令行直接传；我可以把相关片段**贴进正文**（你在网页上传也行）——
->   发出去后凭链接的人都能看到，贴之前我会先扫一遍敏感信息。
-> · 不附也行，我照常提 issue，正文里标 `logs not attached`，维护者需要时会再找你。
+> **ZH:** 这个仓库的模板明确要求附上…（原文：「…」）。要我把这一处恢复吗？
+> · **推荐**：只把相关片段**贴进正文** —— 贴之前、贴之后我都会再扫一遍敏感信息；
+> · 整份文件也可以由我用 `gh gist create` 代传 —— **每次都要你先选 public 还是 secret**，
+>   并且我会在正文里写明它是「公开链接」还是「仅链接可见」；
+> · 或者你自己在网页上传。
+> 不给也行，我照常提 issue，正文里标 `not attached`，维护者需要时会再找你。
 > 你决定。
 >
-> **EN:** This repo's template asks for logs. **Want me to include them?**
-> · Log files cannot be attached from the CLI — I can paste the relevant excerpt into the
->   body (or you can upload it on the web). It becomes public to anyone holding the link,
->   and I'll scan it for secrets first.
-> · Or skip it: I'll file with `logs not attached` and maintainers can ask later.
+> **EN:** This repo's template explicitly asks for … (its words: "…"). **Restore that one spot?**
+> · **Preferred:** paste the relevant excerpt into the body — I re-scan before **and** after.
+> · The whole file can go up via `gh gist create` — **you pick public or secret every time**,
+>   and the body will state which one it is.
+> · Or upload it on the web yourself.
+> · Or skip it: I'll file with `not attached` and maintainers can ask later.
 > Your call.
 
 `--attach` takes **images and video only** — a log file cannot ride along that way.
-Scan any excerpt for secrets **before** it goes in. If the user declines, proceed without them.
+Scan any excerpt **before and after** it goes in. Restore only the spot the repository
+asked for; everything else stays redacted.
 
-### 8. Privacy check — reminder, not a veto
-Run `scripts/privacy_scan.py <draft-file>`. Two levels (see `references/privacy.md`):
+### 8. Privacy: redact by default, verify with the scanner, show the list
 
-| Level | Examples | What you do |
+Three moves, in order (full rules in `references/privacy.md`):
+
+1. **Redact by default.** Replace identity/history details and secrets with `<redacted>`
+   and leave a visible "redacted" trace. Then show the user the **redaction list** in
+   chat — position / what was removed / why — and keep that list out of every file that
+   will be submitted.
+2. **Verify with the scanner** (again after pasting any excerpt).
+   `scripts/privacy_scan.py <draft>` → exit 0 continues; exit 1 or 2 means the redaction
+   pass missed something, so **redact it and re-run**. That exit code is not a prompt to
+   ask the user whether to send as-is.
+3. **Exception only when the repo requires it** — quote the requirement, restore only
+   that spot; secrets stay redacted inside any excerpt unless the user names that exact
+   value. Authorised values are passed explicitly: `--allow '<value>'` (repeatable, or
+   `--allow-file <file>`). `--skip-scan` turns the scanner off for the whole draft —
+   last resort.
+
+| Level | Kind | What it decides |
 |---|---|---|
-| **1 — identity / location / history** | username, local paths, chat logs, ids | Warn **once**, continue on yes |
-| **2 — secrets** | password, API key, token, private key | **Second confirmation**: state the consequence, then wait for an explicit reply |
+| **1 — identity / location / history** | username, local paths, chat logs, ids | redacted by default; may be offered **if the repo requires it** |
+| **2 — secrets** | password, API key, token, private key | redacted always; leaves only when the user names that exact value |
 
-Content the user pasted themselves gets the same warnings.
-**You never upload logs or capture anything on your own initiative.** If the user insists after
-being warned, file it as they say.
+**You never upload or capture anything without authorisation.** Once the user has
+authorised it in Step 7, the CLI can carry it out (`gh gist create`, or an excerpt
+pasted into the body).
 
 ### 9. Draft the report
 Six sections, in the target repo's language — see `references/report.md` and `templates/bug-report.md`:
@@ -125,7 +145,9 @@ Six sections, in the target repo's language — see `references/report.md` and `
 When the repo supplies a template, its headings win and these six are only the fallback.
 
 ### 10. User approval — hard gate
-Show the **full Title and Body**. Nothing is sent until the user explicitly says yes.
+Show the **full Title and Body**, plus a short summary of the **redaction list** — what
+was removed and stayed out — so the user can see what the issue will NOT contain.
+Nothing is sent until the user explicitly says yes.
 Never treat silence, "ok", or an earlier instruction as permission for *this* issue.
 
 ### 11. File it, attach images, read it back
@@ -183,8 +205,10 @@ block, so the user can select and copy it in one action.
 
 ## Never
 
-- Never upload a log file on the user's behalf — no command does that. Step 7 offers only
-  two paths: paste an excerpt into the body, or the user uploads it on the web themselves.
+- Never upload anything **without authorisation**. Once the user has authorised it in
+  Step 7, the CLI **can** carry it out: paste an excerpt into the body, or
+  `gh gist create` the file — `--attach` itself only accepts images and video.
+  Always state in the body what was uploaded and how visible it is.
 - Never claim evidence you did not actually read.
 - Never file without Step 10.
 - Never put your own local paths, usernames, or this repository's internals into a report.

@@ -11,5 +11,6 @@ Two things you must honour:
 1. **Reply in the language the user writes in.** The issue body follows the target repository's language.
 2. **Never send without Step 10** — show the full Title and Body and wait for an explicit yes.
 
-Privacy is a reminder, not a veto: warn once on personal details, confirm twice on passwords /
-API keys / tokens, and never upload logs on your own initiative.
+Privacy is redact-by-default: personal details and secrets are replaced with <redacted> and
+the removal list is shown to the user; the scanner is a gate (non-zero exit means redact and
+re-run), and nothing is uploaded without the user's explicit authorisation.

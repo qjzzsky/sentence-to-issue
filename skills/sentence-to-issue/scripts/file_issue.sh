@@ -2,7 +2,12 @@
 # file_issue.sh — file a GitHub issue and read it back to prove it landed.
 #
 #   ./file_issue.sh --repo owner/name --title "Title" --body-file draft.md \
-#        [--attach './img.png#alt'] [--search "keywords"] [--skip-scan]
+#        [--attach './img.png#alt'] [--search "keywords"]
+#        [--allow '<authorised value>']... [--skip-scan]
+#
+# --allow: authorise ONE exact literal (repeatable) that the target repo asked
+#          for and the user signed off on. PREFER THIS over --skip-scan, which
+#          turns the scanner off for the WHOLE draft and is a last resort.
 #
 # --attach: the path must match the reference in the body character for character
 #           (e.g. body has ![alt](./img.png) -> pass './img.png#alt'). A mismatched
@@ -37,6 +42,7 @@ native() {
 }
 
 REPO="" TITLE="" BODY="" SEARCH="" SKIP_SCAN=0
+ALLOWS=()
 ATTACHES=()
 
 usage() { sed -n '2,24p' "$0"; exit 4; }
@@ -48,6 +54,7 @@ while [[ $# -gt 0 ]]; do
     --body-file) BODY="$2"; shift 2 ;;
     --search)    SEARCH="$2"; shift 2 ;;
     --attach)    ATTACHES+=("$2"); shift 2 ;;
+    --allow)     ALLOWS+=("$2"); shift 2 ;;
     --skip-scan) SKIP_SCAN=1; shift ;;
     -h|--help)   usage ;;
     *) echo "unknown option: $1" >&2; usage ;;
@@ -102,15 +109,20 @@ if [[ $SKIP_SCAN -eq 1 ]]; then
   echo "!! 已按 --skip-scan 跳过隐私扫描 —— 正文未经检查。"
 elif [[ -n "$PYTHON" && -f "$SCAN" ]]; then
   set +e
-  SCAN_OUT="$("$PYTHON" "$SCAN" "$BODY" 2>&1)"
+  SCAN_OUT="$("$PYTHON" "$SCAN" "$BODY" ${ALLWS[@]+"${ALLWS[@]}"} 2>&1)"
   code=$?
   set -e
   printf '%s\n' "$SCAN_OUT"
   if [[ $code -eq 2 && "$SCAN_OUT" == *"LEVEL 2"* ]]; then
     echo
-    echo "BLOCKED: level-2 secret found. Ask the user (second confirmation), then either"
-    echo "         redact the file and re-run, or pass --skip-scan if they insist."
-    echo "已拦截：正文含疑似密钥。须经用户二次确认。"
+    echo "BLOCKED: level-2 secret found."
+    echo "  MAIN PATH: redact that spot in the draft, then re-run."
+    echo "  EXCEPTION: only if the target repo demands it AND the user authorised"
+    echo "             that exact value -> re-run with --allow '<the value>'."
+    echo "  LAST RESORT: --skip-scan turns the scanner off for the WHOLE draft."
+    echo "主路：把这一处脱敏后重跑。"
+    echo "例外：仅当目标仓库明确要求、且用户已对那一处授权 —— 用 --allow '<该值>' 重跑。"
+    echo "最后手段：--skip-scan 是整份不扫。"
     exit 2
   elif [[ $code -ne 0 && "$SCAN_OUT" != *"LEVEL"* ]]; then
     echo "privacy scanner itself failed (exit $code) - refusing to file unchecked." >&2
@@ -145,7 +157,7 @@ gh issue view "$NUMBER" --repo "$REPO" --json number,title,url,state --template 
 if [[ $SKIP_SCAN -eq 0 && -n "$PYTHON" && -f "$SCAN" ]]; then
   LIVE="$(gh issue view "$NUMBER" --repo "$REPO" --json body --jq '.body')"
   set +e
-  SCAN2_OUT="$(printf '%s' "$LIVE" | "$PYTHON" "$SCAN" - 2>&1)"
+  SCAN2_OUT="$(printf '%s' "$LIVE" | "$PYTHON" "$SCAN" - ${ALLWS[@]+"${ALLWS[@]}"} 2>&1)"
   scan2=$?
   set -e
   printf '%s\n' "$SCAN2_OUT"

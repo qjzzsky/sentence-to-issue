@@ -3,8 +3,17 @@
 privacy_scan.py — scan a draft issue body for things the user may not want public.
 
 Usage:
-    python3 privacy_scan.py <file>            scan a file
-    python3 privacy_scan.py -                 scan stdin
+    python3 privacy_scan.py <file>                      scan a file
+    python3 privacy_scan.py -                           scan stdin
+    python3 privacy_scan.py <file> --allow '<VALUE>'    authorise ONE exact value
+    python3 privacy_scan.py <file> --allow-file <FILE>  one authorised value per line
+
+`--allow` / `--allow-file` are the AUTHORISED EXCEPTION path: when the target
+repository's own template asks for content the user agreed to publish, pass the
+exact literal value(s) here and they are blanked (spaces, line numbers kept)
+before matching. Everything else — including every other secret in the same
+file — is still reported normally. This replaces blanket `--skip-scan`, which
+turns the scanner off for the whole draft and is a last resort only.
 
 Exit codes:
     0  clean
@@ -185,11 +194,47 @@ def scan(text):
     return hits
 
 
+def redact_authorized(text, values):
+    """Blank exact authorised literals (spaces, so line numbers stay put).
+    Returns (text, count_of_values_actually_removed)."""
+    out = text
+    removed = 0
+    for value in values:
+        if value and value in out:
+            out = out.replace(value, " " * len(value))
+            removed += 1
+    return out, removed
+
+
+def parse_args(argv):
+    """-> (source, [authorised values]) or (None, None) on a usage error."""
+    allows, source, i = [], None, 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg == "--allow" and i + 1 < len(argv):
+            allows.append(argv[i + 1]); i += 2
+        elif arg == "--allow-file" and i + 1 < len(argv):
+            try:
+                with open(argv[i + 1], encoding="utf-8") as fh:
+                    allows.extend(line.rstrip("\n") for line in fh if line.strip())
+            except OSError as exc:
+                print(f"cannot read allow-file {argv[i + 1]}: {exc}", file=sys.stderr)
+                return None, None
+            i += 2
+        elif arg.startswith("-") and arg != "-":
+            return None, None
+        elif source is None:
+            source = arg; i += 1
+        else:
+            return None, None
+    return source, allows
+
+
 def main():
-    if len(sys.argv) != 2:
+    source, allows = parse_args(sys.argv[1:])
+    if source is None:
         print(__doc__)
         return 64
-    source = sys.argv[1]
     if source == "-":
         text = sys.stdin.read()
         label = "<stdin>"
@@ -201,6 +246,15 @@ def main():
             print(f"cannot read {source}: {exc}", file=sys.stderr)
             return 66
         label = source
+
+    # Authorised exceptions first: exact literals the user signed off on are
+    # blanked before anything is matched. Everything else is scanned as usual.
+    if allows:
+        text, removed = redact_authorized(text, allows)
+        print(f"[allow] {removed} authorised value(s) suppressed")
+        if removed < len([v for v in allows if v]):
+            print(f"[allow] {len([v for v in allows if v]) - removed} authorised value(s) "
+                  "were not present in this text")
 
     # The marker never hides anything from level 2; it only excuses level 1,
     # and whatever it skipped is printed so the reader can see it happened.
