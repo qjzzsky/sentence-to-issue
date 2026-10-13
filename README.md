@@ -22,7 +22,7 @@ through this skill — software, games, web apps, AI-agent skills alike.**
 Install:
 
 ```bash
-gh skill install qjzzsky/one-sentence-issue --agent claude-code
+gh skill install qjzzsky/sentence-to-issue --agent claude-code
 ```
 
 Then, in any assistant that has it loaded:
@@ -48,16 +48,16 @@ Nothing leaves your machine until you have seen the entire body and said yes.
 **Path A — `gh skill` (48 agents: Claude Code, Cursor, Codex, Copilot, Gemini CLI, …)**
 
 ```bash
-gh skill install qjzzsky/one-sentence-issue                 # interactive
-gh skill install qjzzsky/one-sentence-issue --agent cursor  # non-interactive, one agent
-gh skill install qjzzsky/one-sentence-issue one-sentence-issue --agent claude-code
+gh skill install qjzzsky/sentence-to-issue                 # interactive
+gh skill install qjzzsky/sentence-to-issue --agent cursor  # non-interactive, one agent
+gh skill install qjzzsky/sentence-to-issue sentence-to-issue --agent claude-code
 #  ^ plain form for scripts: repository, then skill name
 ```
 
 **Path B — Hermes**
 
 ```bash
-hermes skills install qjzzsky/one-sentence-issue
+hermes skills install qjzzsky/sentence-to-issue
 ```
 
 `hermes skills install` also takes a direct `SKILL.md` URL. If you would rather clone by
@@ -65,7 +65,7 @@ hand, put it in the directory `hermes skills list` reports for your platform —
 folder is **not** the same path on Windows and Unix:
 
 ```bash
-git clone https://github.com/qjzzsky/one-sentence-issue.git <your-skills-dir>/one-sentence-issue
+git clone https://github.com/qjzzsky/sentence-to-issue.git <your-skills-dir>/sentence-to-issue
 ```
 
 **Requirements:** the `gh` CLI ([cli.github.com](https://cli.github.com)) and `gh auth login`.
@@ -78,12 +78,12 @@ Without them the workflow still works — it degrades to handing you the finishe
 | # | What the AI does | How the AI does it |
 |---|---|---|
 | 1 | Reads your sentence | Works out from your description what broke, which GitHub repository it belongs to, and what evidence there is |
-| 2 | Finds the right repo | Two sources to check: the project's own git remote, or the link you gave |
+| 2 | Finds the right repo | Three sources to check: the project's own git remote, the link you gave, or the LICENSE file inside the project itself |
 | 3 | Checks available tools | Checks the permissions and skills it can draw on — file access and a shell mean more evidence, a chat window alone means less |
 | 4 | Before it digs in | It warns you: "Don't refresh, restart, update, or close anything. Anything else you remember about the bug, send it over." |
-| 5 | Investigates | The bug and the key facts only, no files touched, recorded as found |
+| 5 | Investigates | The bug only, recorded as found, no files touched |
 | 6 | Checks for duplicates | If a similar issue already exists → it suggests adding detail in the comments instead of opening a new one |
-| 7 | Checks the issue template | Uses the repository's own template when there is one; asks you first if the template wants logs |
+| 7 | Checks the issue template | Uses the repository's own template when there is one; if the template wants logs, it asks you first |
 | 8 | Checks for sensitive data | Warns you when something looks like a leak. Nothing reaches the issue without your consent. Ordinary private details are flagged once; passwords and keys need a second confirmation |
 | 9 | Writes the issue | Body written to the target repository's requirements |
 | 10 | Shows you the issue | The full title and body for review — it publishes only after you approve |
@@ -181,12 +181,12 @@ read-back verification.
 ## File structure
 
 ```
-one-sentence-issue/
+sentence-to-issue/
 ├── README.md / README.zh-CN.md
 ├── LICENSE · .gitignore
 ├── AGENTS.md, CLAUDE.md          short pointers to SKILL.md
 └── skills/
-    └── one-sentence-issue/
+    └── sentence-to-issue/
         ├── SKILL.md              the workflow (read by the assistant)
         ├── references/           evidence layers · privacy rules · report shape · pitfalls
         ├── templates/            bug report and feature request bodies
@@ -195,7 +195,7 @@ one-sentence-issue/
             └── file_issue.sh     dedupe → scan → file → read back → re-scan
 ```
 
-Everything the assistant needs lives **inside `skills/one-sentence-issue/`** — that is the
+Everything the assistant needs lives **inside `skills/sentence-to-issue/`** — that is the
 directory `gh skill install` copies, so a skill installed without it would be missing its
 scanner and templates.
 
@@ -220,4 +220,4 @@ MiMo v2.6 Flash — authored, tested, and published with their help.
 [MIT](./LICENSE) © 2026 qjzzsky.
 
 Brief excerpts from other open-source projects keep their origin and license noted in
-`skills/one-sentence-issue/references/pitfalls.md`.
+`skills/sentence-to-issue/references/pitfalls.md`.

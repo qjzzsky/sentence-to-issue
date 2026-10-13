@@ -20,7 +20,7 @@ AI 工具的技能，都可以通过这个技能来反馈。**
 安装：
 
 ```bash
-gh skill install qjzzsky/one-sentence-issue --agent claude-code
+gh skill install qjzzsky/sentence-to-issue --agent claude-code
 ```
 
 （不在这 48 种 agent 里的，比如 Hermes，走 `git clone` 到技能目录。）
@@ -47,13 +47,13 @@ https://github.com/<owner>/<repo>/issues/123
 
 | 路径 | 命令 |
 |---|---|
-| **A. `gh skill`**（Claude Code、Cursor、Codex、Copilot、Gemini CLI 等 48 种） | `gh skill install qjzzsky/one-sentence-issue --agent claude-code` |
-| **B. Hermes** | `hermes skills install qjzzsky/one-sentence-issue` |
-| **C. 手动 clone** | `git clone https://github.com/qjzzsky/one-sentence-issue.git <你的技能目录>/one-sentence-issue` |
+| **A. `gh skill`**（Claude Code、Cursor、Codex、Copilot、Gemini CLI 等 48 种） | `gh skill install qjzzsky/sentence-to-issue --agent claude-code` |
+| **B. Hermes** | `hermes skills install qjzzsky/sentence-to-issue` |
+| **C. 手动 clone** | `git clone https://github.com/qjzzsky/sentence-to-issue.git <你的技能目录>/sentence-to-issue` |
 
 > 技能目录**因平台而异**（Windows 与 Unix 不是一个路径），用 `hermes skills list` 看你的在哪。
 > `gh skill install` 不带技能名时只会**列出**仓库里的技能，脚本化调用要写全：
-> `gh skill install qjzzsky/one-sentence-issue one-sentence-issue --agent claude-code`
+> `gh skill install qjzzsky/sentence-to-issue sentence-to-issue --agent claude-code`
 
 **依赖**：`gh` 命令行（[cli.github.com](https://cli.github.com)）+ `gh auth login`。
 没有它也能用——会降级成把写好的正文整块交给你，你自己贴网页。
@@ -65,12 +65,12 @@ https://github.com/<owner>/<repo>/issues/123
 | # | AI 做什么 | AI 具体怎么做 |
 |---|---|---|
 | 1 | 听懂你那句话 | 会根据你的描述理解出了什么 bug，对应的是哪一个 GitHub 仓库，现在有什么证据。 |
-| 2 | 找到对应的仓库 | 查看两个来源：项目自己的 git 远程地址，或者你给的链接 |
+| 2 | 找到对应的仓库 | 查看三个来源：项目自己的 git 远程地址、你给的链接，或者读项目里的 LICENSE 版权说明 |
 | 3 | 检查有什么工具 | 检查可以调动的权限和技能，能读文件、能跑命令就多抓点；只有聊天窗口就少抓点 |
 | 4 | 排查前的提醒 | 它会提醒你：「别刷新、别重启、别更新、别关窗口。有相关的信息可以随时补充给我。」 |
-| 5 | 排查 | 只排查 bug，不修改任何文件；如实记录关键信息。 |
+| 5 | 排查 | 只排查 bug，如实记录相关信息，不修改任何文件。 |
 | 6 | issue 查重 | 如果检查到已经有人提过类似的 issue → 会建议在评论中补充细节，不再新开 issue。 |
-| 7 | issue 填写模板检查 | 对应项目有自己的 issue 模板填写要求，就照模板填写；模板要求提交日志信息，先征求你的意见。 |
+| 7 | issue 填写模板检查 | 对应项目有自己的 issue 模板填写要求，就照模板填写；如果模板要求提交日志信息，就先征求你的意见。 |
 | 8 | 敏感信息检查 | 检查到有敏感信息泄露的风险，会对你进行提醒。没有经过你同意的话，信息不会汇总到 issue 的反馈内容中。普通隐私信息提醒你一次，密码密钥要你第二次确认之后才会记录在 issue 里。 |
 | 9 | 撰写 issue | 根据目标仓库的要求撰写 issue 反馈正文。 |
 | 10 | issue 预览 | 把 issue 的标题和正文列出来供你检查，你检查无误之后才会发布。 |
@@ -147,12 +147,12 @@ issue 照发」这个选项。
 ## 文件结构
 
 ```
-one-sentence-issue/
+sentence-to-issue/
 ├── README.md / README.zh-CN.md
 ├── LICENSE · .gitignore
 ├── AGENTS.md, CLAUDE.md          短指引，指向 SKILL.md
 └── skills/
-    └── one-sentence-issue/
+    └── sentence-to-issue/
         ├── SKILL.md              工作流本体（AI 读）
         ├── references/           证据分层 · 隐私规则 · 正文结构 · 坑
         ├── templates/            bug / feature 正文骨架
@@ -161,7 +161,7 @@ one-sentence-issue/
             └── file_issue.sh     查重 → 扫描 → 提交 → 读回 → 复扫
 ```
 
-AI 需要的东西**全在 `skills/one-sentence-issue/` 里面** —— `gh skill install` 复制的正是这个
+AI 需要的东西**全在 `skills/sentence-to-issue/` 里面** —— `gh skill install` 复制的正是这个
 目录，放外面的话装完就缺扫描器和模板。
 
 ---
@@ -183,4 +183,4 @@ AI 需要的东西**全在 `skills/one-sentence-issue/` 里面** —— `gh skil
 ## 协议
 
 [MIT](./LICENSE) © 2026 qjzzsky。
-引用其他开源项目的片段，出处与协议已在 `skills/one-sentence-issue/references/pitfalls.md` 标注。
+引用其他开源项目的片段，出处与协议已在 `skills/sentence-to-issue/references/pitfalls.md` 标注。

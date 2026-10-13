@@ -1,5 +1,5 @@
 ---
-name: one-sentence-issue
+name: sentence-to-issue
 description: >-
   Use when the user says "file an issue", "report this bug to the repo",
   "one sentence issue", or the Chinese equivalents "一句话提 GitHub issue" /
@@ -35,11 +35,14 @@ assume they know GitHub vocabulary.
 Extract three things: **what broke**, **which repository**, **what evidence the user already has**.
 Ask only for what is missing. Never guess the repository.
 
-### 2. Resolve the target repository — exactly two sources
+### 2. Resolve the target repository — three sources
 1. `git remote get-url origin` in the current working directory
 2. The user's own words: an `owner/repo`, or a full `https://github.com/...` link
+3. **The project's own license file** — `LICENSE`, `LICENSE.md`, `COPYING`: the copyright
+   line and the project homepage named there usually identify the GitHub repository.
+   (`package.json`'s `repository` field and `pyproject.toml` work the same way.)
 
-There is **no keyword search** — if neither source yields a repository, ask the user for it.
+There is **no keyword search** — if none of the three yields a repository, ask the user for it.
 
 ### 3. Capability probe
 Inventory what you can actually reach: terminal, file read, browser, screenshots, installed skills.
@@ -119,7 +122,7 @@ Never treat silence, "ok", or an earlier instruction as permission for *this* is
 
 Preferred — one script runs dedupe → scan → file → read back → re-scan, in that order:
 ```bash
-skills/one-sentence-issue/scripts/file_issue.sh \
+skills/sentence-to-issue/scripts/file_issue.sh \
   --repo <owner/repo> --title "<title>" --body-file draft.md \
   [--attach './screenshot.png#what it shows']
 ```

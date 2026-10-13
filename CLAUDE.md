@@ -1,6 +1,6 @@
 # One-Sentence Issue · 一句话提 GitHub issue
 
-The full workflow lives in **[skills/one-sentence-issue/SKILL.md](./skills/one-sentence-issue/SKILL.md)** — read it and follow it.
+The full workflow lives in **[skills/sentence-to-issue/SKILL.md](./skills/sentence-to-issue/SKILL.md)** — read it and follow it.
 
 Trigger: the user says one sentence about something broken and wants it filed as a GitHub issue —
 "file an issue", "report this bug to the repo", "one sentence issue", or in Chinese
