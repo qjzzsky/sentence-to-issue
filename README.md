@@ -6,10 +6,10 @@ Install the skill, and when a bug shows up, tell your AI assistant what broke. I
 investigating. **Don't refresh, restart, update, or close anything meanwhile. If you have
 more detail, send it over.**
 
-While investigating it gathers evidence where your permissions allow, **redacts** anything
-sensitive in the draft, **shows you exactly what it removed**, and only asks you to supply
-those details when the repository's own template requires them. Then it finds the matching
-GitHub repository and files the issue with `gh`.
+While investigating it gathers evidence where your permissions allow, **redacts** the
+sensitive details **it finds** in the draft, **lists what it removed, item by item**, and only
+asks you to supply those details when the repository's own template requires them. Then it
+finds the matching GitHub repository and files the issue with `gh`.
 
 When that is done it checks everything once more, confirms the issue went through, and hands
 you the link.
@@ -41,7 +41,7 @@ Gathering evidence — please don't refresh, restart, update, or close anything.
 https://github.com/<owner>/<repo>/issues/123
 ```
 
-Nothing leaves your machine until you have seen the entire body and said yes.
+Nothing is filed until you have seen the entire body and said yes.
 
 ---
 
@@ -127,10 +127,14 @@ from memory — see `skills/sentence-to-issue/references/evidence.md`.
 initiative.** Personal details and secrets are replaced with `<redacted>` in the draft, and
 you are shown what was removed before anything is filed.
 
+Redaction lowers exposure — **it is not anonymity**: the issue is filed under your GitHub
+account, and what is left can still point at you. We are careful, not omniscient; see
+**What this is not** below.
+
 | Level | Examples | Behaviour |
 |---|---|---|
 | 1 — identity / location / history | username, local paths, chat history | redacted by default; offered back to you **only if the repo's template requires it** |
-| 2 — secrets | password, API key, token, private key | redacted always; leaves only when you name that exact value |
+| 2 — secrets | password, API key, token, private key | always redacted in the draft; included only when you name that exact value |
 
 The scanner is a **gate**, not a reminder: a non-zero exit means the redaction pass missed
 something, so it redacts and re-runs rather than asking you to send as-is. When the

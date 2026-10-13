@@ -133,7 +133,7 @@ Three moves, in order (full rules in `references/privacy.md`):
 | Level | Kind | What it decides |
 |---|---|---|
 | **1 — identity / location / history** | username, local paths, chat logs, ids | redacted by default; may be offered **if the repo requires it** |
-| **2 — secrets** | password, API key, token, private key | redacted always; leaves only when the user names that exact value |
+| **2 — secrets** | password, API key, token, private key | always redacted in the draft; included only when the user names that exact value |
 
 **You never upload or capture anything without authorisation.** Once the user has
 authorised it in Step 7, the CLI can carry it out (`gh gist create`, or an excerpt
@@ -147,6 +147,10 @@ When the repo supplies a template, its headings win and these six are only the f
 ### 10. User approval — hard gate
 Show the **full Title and Body**, plus a short summary of the **redaction list** — what
 was removed and stayed out — so the user can see what the issue will NOT contain.
+
+Before they answer, state once: this report is redacted, **not anonymous** — it will be
+filed under their GitHub account, and the remaining details can still point at them.
+
 Nothing is sent until the user explicitly says yes.
 Never treat silence, "ok", or an earlier instruction as permission for *this* issue.
 

@@ -16,7 +16,7 @@
 # NOTE: there is deliberately NO --template flag. gh refuses --template together
 #       with --body-file, so fold the repository template into the draft first.
 #
-# What it guarantees:
+# What it does, in order:
 #   1. gh exists and is authenticated (fails loudly otherwise)
 #   2. optional dedupe - a failed query aborts instead of reading as no-match
 #   3. privacy scan on the draft  (level 2 aborts: ask the user first)

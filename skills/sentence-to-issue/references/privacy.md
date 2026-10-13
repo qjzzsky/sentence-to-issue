@@ -109,13 +109,20 @@ For values the user authorised **in this conversation**, `--allow` is the
 mechanism — explicit, per-value, and visible in the scan output. The marker is
 not.
 
-## The scanner is heuristic, not proof
+## The scanner may miss, and redaction is not anonymity
 
-`scripts/privacy_scan.py` rebuilds two extra views of the text (HTML comments
-removed, newlines joined) because that is what a reader sees when GitHub renders
-the issue — but a value that is split, spaced out or encoded in some other way
-can still slip through, and the `~N [view]` line numbers on rebuilt hits are
-approximate.
+Two boundaries to state plainly, because both are limits on what redaction buys you:
+
+1. **The scanner is heuristic.** It rebuilds two extra views of the text (HTML comments
+   removed, newlines joined) because that is what a reader sees when GitHub renders the
+   issue — but a value that is split, spaced out or encoded in some other way can still
+   slip through, and the `~N [view]` line numbers on rebuilt hits are approximate.
+2. **Redaction lowers exposure; it is not anonymity.** The issue is filed under the
+   user's GitHub account, and what is left can still identify them.
+
+**Before the user answers in Step 10, say both out loud:** this report is redacted,
+**not anonymous** — it will be filed under their GitHub account and the remaining details
+can still point at them; and the scanner is a gate, not a guarantee.
 
 **The last line of defence is Step 10: the user reads the full title, the full
 body and the redaction-list summary before anything is filed.** The scanner is a
