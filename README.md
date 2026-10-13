@@ -4,9 +4,12 @@
 
 > **File what you found in one sentence — straight to a GitHub repo's issue.**
 
-Install the skill, and when a bug shows up, tell your AI assistant what broke. It starts
-investigating. **Don't refresh, restart, update, or close anything meanwhile. If you have
-more detail, send it over.**
+**As long as the program is open source and hosted on GitHub, anything can be reported
+through this skill — software, games, web apps, AI-agent skills alike.**
+
+When a bug shows up, tell your AI assistant what broke — it starts investigating.
+**Don't refresh, restart, update, or close anything meanwhile. If you have more detail,
+send it over.**
 
 While investigating it gathers evidence where your permissions allow, **redacts** the
 sensitive details **it finds** in the draft, **lists what it removed, item by item**, and only
@@ -15,9 +18,6 @@ finds the matching GitHub repository and files the issue with `gh`.
 
 When that is done it checks everything once more, confirms the issue went through, and hands
 you the link.
-
-**As long as the program is open source and hosted on GitHub, anything can be reported
-through this skill — software, games, web apps, AI-agent skills alike.**
 
 ---
 
