@@ -157,6 +157,12 @@ if [[ $SKIP_SCAN -eq 0 && -n "$PYTHON" && -f "$SCAN" ]]; then
 fi
 
 echo
-echo "Filed and verified / 已提交并读回核对: $URL"
+# --skip-scan means neither the draft nor the live body was ever scanned;
+# claiming "verified" there would overstate what actually happened.
+if [[ $SKIP_SCAN -eq 1 ]]; then
+  echo "Filed (privacy scan SKIPPED / 未扫，未复扫): $URL"
+else
+  echo "Filed and verified / 已提交并读回核对: $URL"
+fi
 echo "Labels are empty because this flow never passes --label (normal, not a failure)."
 echo "标签为空属正常：本流程不传 --label。"

@@ -193,7 +193,8 @@ sentence-to-issue/
         ├── templates/            bug / feature 正文骨架
         └── scripts/
             ├── privacy_scan.py   两级扫描器（只含通用规则，不含真实姓名）
-            └── file_issue.sh     查重 → 扫描 → 提交 → 读回 → 复扫
+            ├── file_issue.sh     查重 → 扫描 → 提交 → 读回 → 复扫
+            └── selftest.py       7 条断言的回归自测（不带参数直接跑）
 ```
 
 AI 需要的东西**全在 `skills/sentence-to-issue/` 里面** —— `gh skill install` 复制的正是这个

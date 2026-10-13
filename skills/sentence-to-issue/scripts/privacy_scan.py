@@ -23,6 +23,16 @@ are NEVER exempt: a password, token or private key inside such a block is still 
 the raw text and still demands the second confirmation. Use the marker ONLY for content
 published on purpose, e.g. an author block; anything else that trips a rule must be redacted,
 not marked.
+
+LEVEL-2 scans THREE views of the same text, because GitHub hides HTML comments and readers
+copy values out across line breaks: the raw text, the text with all HTML comments deleted
+(what a reader actually sees), and the text with newlines joined. A hit that only appears
+in a rebuilt view prints a line number like `~3 [uncommented]` — approximate on purpose;
+the exit code 2 gate is what matters, not the exact line.
+
+THIS SCANNER IS HEURISTIC, NOT PROOF. A secret split or obfuscated in a way these views
+don't reconstruct can still slip through. The last line of defence is Step 10: the user
+reads the full body before anything is filed.
 """
 
 import re
@@ -67,7 +77,10 @@ RULES = [
     # github.com/<owner> is deliberately absent: it appears in every issue body.
     (1, "Social profile link", "社交账号主页链接",
      r"(?i)(?:weibo\.com/(?:u/)?|space\.bilibili\.com/|zhihu\.com/people/"
-     r"|(?:twitter\.com|x\.com)/|weixin\.qq\.com/s/|t\.me/|gitee\.com/)"
+     r"|(?:twitter\.com|x\.com)/|weixin\.qq\.com/s/|t\.me/|gitee\.com/"
+     r"|xiaohongshu\.com/user/profile/|douyin\.com/user/|juejin\.cn/user/"
+     r"|douban\.com/people/|linkedin\.com/in/|reddit\.com/user/"
+     r"|bsky\.app/profile/)"
      r"[A-Za-z0-9_-]+"),
 ]
 
@@ -96,21 +109,64 @@ def strip_allowed(text):
     return ALLOW_RE.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
 
 
+COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
+NEWLINE_RE = re.compile(r"[ \t]*\r?\n[ \t]*")
+
+
+def _views(text):
+    """The text forms level-2 must be checked against.
+
+    GitHub hides HTML comments, so `ghp_AB<!-- x -->CD` renders as one
+    continuous token; a reader copying a token out of a wrapped block also
+    ignores the line break. Rebuilding both forms catches what the raw-text
+    pass cannot. The raw text comes first so exact line numbers win.
+    """
+    yield None, text                                    # exact line numbers
+    yield "uncommented", COMMENT_RE.sub("", text)      # what the reader sees
+    yield "newline-joined", NEWLINE_RE.sub("", text)   # values wrapped mid-token
+
+
+def _locate(text, snippet):
+    """Line of the snippet in the raw text; falls back to its first 12 chars
+    (the hit was reconstructed, so the exact string may not exist verbatim)."""
+    i = text.find(snippet)
+    if i < 0:
+        i = text.find(snippet[:12])
+    if i < 0:
+        return "~?", True
+    return text.count("\n", 0, i) + 1, True
+
+
 def scan(text):
-    """Level-2 rules ALWAYS run on the raw text — the marker can only excuse
-    identity findings, never a secret. Level-1 rules run on the text with the
-    exempted spans removed (line numbers stay identical: strip_allowed() drops
-    characters but keeps every newline)."""
+    """Level-2 rules run on the raw text AND on the rebuilt views above —
+    the marker can only excuse identity findings, never a secret, and a secret
+    cut apart by a comment or a line break still counts. Level-1 rules run on
+    the text with exempted spans blanked: non-newline characters are replaced
+    by spaces (length and line breaks preserved), so line numbers stay
+    identical and boundary characters can never be spliced into a fake hit.
+    Reconstructed hits print an approximate line marked with its view."""
     hits = []
+    seen = set()
     level1_text = strip_allowed(text)
+
     for level, en, zh, pattern in RULES:
-        haystack = text if level == 2 else level1_text
-        for match in re.finditer(pattern, haystack):
-            snippet = match.group(0)
-            if len(snippet) > 60:
-                snippet = snippet[:57] + "..."
-            line = haystack.count("\n", 0, match.start()) + 1
-            hits.append((level, en, zh, snippet, line))
+        views = [(None, level1_text)] if level == 1 else list(_views(text))
+        for label, haystack in views:
+            for match in re.finditer(pattern, haystack):
+                snippet = match.group(0)
+                if len(snippet) > 60:
+                    snippet = snippet[:57] + "..."
+                key = (level, snippet)
+                if key in seen:
+                    continue
+                seen.add(key)
+                if label is None:
+                    line = haystack.count("\n", 0, match.start()) + 1
+                    line_str = str(line)
+                else:
+                    line, _ = _locate(text, snippet)
+                    line_str = f"~{line} [{label}]"
+                hits.append((level, en, zh, snippet, line_str))
     return hits
 
 

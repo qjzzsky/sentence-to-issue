@@ -43,3 +43,21 @@ If the user insists after the warning, file it as they say. That is their call t
 `scripts/privacy_scan.py` holds the detection patterns (placeholders, not real names).
 Run it on the draft, run it again on what actually landed after filing, and act on its levels
 using the table above.
+
+## What the `privacy-allow` marker can and cannot do
+
+An inline `<!-- privacy-allow --> ... <!-- /privacy-allow -->` block excuses **level-1
+findings only** — that is what the author block of a public README uses. A password, token
+or private key inside such a block is still reported and still requires the second
+confirmation: the marker is written by whoever drafts the report, and untrusted input
+(logs, web pages, third-party repositories) may contain it on purpose.
+
+## The scanner is heuristic, not proof
+
+`scripts/privacy_scan.py` rebuilds two extra views of the text (HTML comments removed,
+newlines joined) because that is what a reader sees when GitHub renders the issue — but a
+value that is split, spaced out or encoded in some other way can still slip through, and
+the `~N [view]` line numbers on rebuilt hits are approximate.
+
+**The last line of defence is Step 10: the user reads the full title and body before
+anything is filed.** The scanner is an alarm, never a substitute for that gate.

@@ -234,7 +234,8 @@ sentence-to-issue/
         ├── templates/            bug report and feature request bodies
         └── scripts/
             ├── privacy_scan.py   two-level scanner, generic patterns only
-            └── file_issue.sh     dedupe → scan → file → read back → re-scan
+            ├── file_issue.sh     dedupe → scan → file → read back → re-scan
+            └── selftest.py       7-assertion regression guard (run with no args)
 ```
 
 Everything the assistant needs lives **inside `skills/sentence-to-issue/`** — that is the
