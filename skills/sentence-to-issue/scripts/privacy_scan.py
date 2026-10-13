@@ -15,6 +15,10 @@ Exit codes:
 
 Detection patterns are GENERIC placeholders. This file intentionally contains no real
 usernames, hostnames or paths of its own — the word list lives here, not in your report.
+
+Deliberate exemptions: wrap a block in  <!-- privacy-allow -->  ...  <!-- /privacy-allow -->
+and it is skipped (line numbers stay correct). Use it ONLY for content published on
+purpose, e.g. an author block. Anything else that trips a rule must be redacted, not marked.
 """
 
 import re
@@ -56,7 +60,21 @@ RULES = [
      r"(?i)\b(?:chat[_-]?id|session[_-]?id|thread[_-]?id|request[_-]?id)\b\s*[:=]\s*[\"']?[A-Za-z0-9_:-]{6,}"),
     (1, "Local username assignment", "本机用户名赋值",
      r"(?i)\b(?:user(?:name)?|login)\b\s*[:=]\s*[\"']?[A-Za-z0-9._-]{3,}"),
+    # github.com/<owner> is deliberately absent: it appears in every issue body.
+    (1, "Social profile link", "社交账号主页链接",
+     r"(?i)(?:weibo\.com/(?:u/)?|space\.bilibili\.com/|zhihu\.com/people/"
+     r"|(?:twitter\.com|x\.com)/|weixin\.qq\.com/s/)[A-Za-z0-9_-]+"),
 ]
+
+
+ALLOW_RE = __import__("re").compile(
+    r"<!--\s*privacy-allow\s*-->.*?<!--\s*/privacy-allow\s*-->", __import__("re").S
+)
+
+
+def strip_allowed(text):
+    """Drop blocks marked as intentionally public, keeping line numbers stable."""
+    return ALLOW_RE.sub(lambda m: "\n" * m.group(0).count("\n"), text)
 
 
 def scan(text):
@@ -87,7 +105,7 @@ def main():
             return 66
         label = source
 
-    hits = scan(text)
+    hits = scan(strip_allowed(text))
     if not hits:
         print(f"[OK] {label} — no sensitive patterns found / 未发现敏感内容")
         return 0

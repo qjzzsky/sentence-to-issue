@@ -1,4 +1,4 @@
-# One-Sentence Issue · 一句话提 GitHub issue
+# Sentence to Issue · 一句话提 GitHub issue
 
 The full workflow lives in **[skills/sentence-to-issue/SKILL.md](./skills/sentence-to-issue/SKILL.md)** — read it and follow it.
 

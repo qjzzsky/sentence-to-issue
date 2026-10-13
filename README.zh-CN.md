@@ -2,15 +2,15 @@
 
 > **用一句话，把发现的问题发到 GitHub 仓库的 issue 里。**
 
-装上这个技能后，在遇到 bug 时，对你的 AI 助手说你遇到了什么 bug，它就会开始调查。
+装上这个技能后，遇到 bug 就对你的 AI 助手说一声，它就会开始调查。
 **这期间别刷新、别重启、别更新、别关窗口。**
 
-调查时，它会在权限允许的前提下抓取相关证据，把敏感信息脱敏，再找到对应的 GitHub 仓库，
-用 `gh` 提交 issue。
+调查时，它会在权限允许的前提下抓取相关证据，发现疑似敏感的内容会先提醒你、由你决定，
+再找到对应的 GitHub 仓库，用 `gh` 提交 issue。
 
 完成之后，它会再核对一遍，确认所有的事情都提交完成之后，AI 会把提交好的 issue 链接发给你。
 
-**只要这个程序是在 GitHub 上开源并且发布在 GitHub 上的，不管是软件、游戏、网页，还是
+**只要这个程序开源并发布在 GitHub 上，不管是软件、游戏、网页，还是
 AI 工具的技能，都可以通过这个技能来反馈。**
 
 ---
@@ -22,8 +22,6 @@ AI 工具的技能，都可以通过这个技能来反馈。**
 ```bash
 gh skill install qjzzsky/sentence-to-issue --agent claude-code
 ```
-
-（不在这 48 种 agent 里的，比如 Hermes，走 `git clone` 到技能目录。）
 
 然后一句话：
 
@@ -52,6 +50,7 @@ https://github.com/<owner>/<repo>/issues/123
 | **C. 手动 clone** | `git clone https://github.com/qjzzsky/sentence-to-issue.git <你的技能目录>/sentence-to-issue` |
 
 > 技能目录**因平台而异**（Windows 与 Unix 不是一个路径），用 `hermes skills list` 看你的在哪。
+> 不带 `--agent` 时会交互式让你选 agent；脚本里用 `--agent cursor` 这类参数直接指定。
 > `gh skill install` 不带技能名时只会**列出**仓库里的技能，脚本化调用要写全：
 > `gh skill install qjzzsky/sentence-to-issue sentence-to-issue --agent claude-code`
 
@@ -65,7 +64,7 @@ https://github.com/<owner>/<repo>/issues/123
 | # | AI 做什么 | AI 具体怎么做 |
 |---|---|---|
 | 1 | 听懂你那句话 | 会根据你的描述理解出了什么 bug，对应的是哪一个 GitHub 仓库，现在有什么证据。 |
-| 2 | 找到对应的仓库 | 查看三个来源：项目自己的 git 远程地址、你给的链接，或者读项目里的 LICENSE 版权说明 |
+| 2 | 找到对应的仓库 | 查看三个来源：项目自己的 git 远程地址、你给的链接，或者项目配置里的仓库地址（`package.json` / `pyproject.toml`）。LICENSE 版权说明只能确认归属，不能用来挑仓库 |
 | 3 | 检查有什么工具 | 检查可以调动的权限和技能，能读文件、能跑命令就多抓点；只有聊天窗口就少抓点 |
 | 4 | 排查前的提醒 | 它会提醒你：「别刷新、别重启、别更新、别关窗口。有相关的信息可以随时补充给我。」 |
 | 5 | 排查 | 只排查 bug，如实记录相关信息，不修改任何文件。 |
@@ -76,6 +75,22 @@ https://github.com/<owner>/<repo>/issues/123
 | 10 | issue 预览 | 把 issue 的标题和正文列出来供你检查，你检查无误之后才会发布。 |
 | 11 | 提交并核对 | 提交。发布后在 GitHub 上可见之后，会再把 issue 检查一遍。 |
 | 12 | 盯回复（可选） | 可以要求 AI 工具跟踪 issue 的进展。 |
+
+上面每一步背后实际跑的命令：
+
+```bash
+gh issue list --repo <owner/repo> --state all --search "<关键词>"           # 第 6 步
+gh api repos/<owner/repo>/contents/.github/ISSUE_TEMPLATE --jq '.[].name'   # 第 7 步
+scripts/privacy_scan.py draft.md                                            # 第 8 步
+gh issue create --repo <owner/repo> --title "<标题>" --body-file draft.md \
+  --attach './截图.png#说明'                                                 # 第 11 步
+gh issue view <编号> --json body,title,url,state                            # 核对
+gh issue view <编号> --comments                                             # 第 12 步
+```
+
+取证深度分 L0 → L3（只有聊天窗口 → 你递过来的文件 → 只读命令 → 运行中的进程状态）。
+抓不到的就在正文里标 `not captured`，绝不用记忆编 —— 见
+`skills/sentence-to-issue/references/evidence.md`。
 
 ---
 
@@ -99,8 +114,8 @@ https://github.com/<owner>/<repo>/issues/123
 
 你自己粘贴的内容同样提醒。你被提醒后仍坚持要发，就按你说的发。
 
-它**永远不会替你跑日志上传命令**。遇到模板强制要日志时，它会问你——包括「不传也行，
-issue 照发」这个选项。
+它**永远不会替你上传日志文件**（没有这种命令）。遇到模板强制要日志时，它会给你三条路：
+贴片段进正文、你自己在网页上传、或者不附——「不传也行，issue 照发」。
 
 ---
 
@@ -168,6 +183,7 @@ AI 需要的东西**全在 `skills/sentence-to-issue/` 里面** —— `gh skill
 
 ## 关于作者
 
+<!-- privacy-allow -->
 **qjzzsky · 曲靖中中**
 
 - GitHub：[qjzzsky](https://github.com/qjzzsky)
@@ -177,6 +193,7 @@ AI 需要的东西**全在 `skills/sentence-to-issue/` 里面** —— `gh skill
 
 本项目由作者使用 [Hermes Agent](https://github.com/NousResearch/hermes-agent) +
 小米 MiMo v2.6 Flash 辅助编写、测试并发布。
+<!-- /privacy-allow -->
 
 ---
 

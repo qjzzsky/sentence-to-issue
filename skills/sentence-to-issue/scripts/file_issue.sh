@@ -18,9 +18,10 @@
 #   4. create the issue
 #   5. read the body back and scan AGAIN — a successful command is not a successful report
 #
-# Exit codes: 0 ok · 2 blocked by a level-2 secret · 3 gh missing/unauthenticated
-#             4 usage error · 5 dedupe query failed · 6 unexpected output from gh create
-#             7 privacy scanner failed to run
+# Exit codes: 0 ok · 1 gh itself failed (repo missing / no permission / rate limited —
+#             passed through as-is) · 2 blocked by a level-2 secret
+#             3 gh missing/unauthenticated · 4 usage error · 5 dedupe query failed
+#             6 unexpected output from gh create · 7 privacy scanner failed to run
 
 set -euo pipefail
 
@@ -38,7 +39,7 @@ native() {
 REPO="" TITLE="" BODY="" SEARCH="" SKIP_SCAN=0
 ATTACHES=()
 
-usage() { sed -n '2,19p' "$0"; exit 4; }
+usage() { sed -n '2,24p' "$0"; exit 4; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

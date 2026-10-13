@@ -1,4 +1,4 @@
-# One-Sentence Issue
+# Sentence to Issue
 
 > **File what you found in one sentence — straight to a GitHub repo's issue.**
 
@@ -6,8 +6,9 @@ Install the skill, and when a bug shows up, tell your AI assistant what broke. I
 investigating. **Don't refresh, restart, update, or close anything meanwhile. If you have
 more detail, send it over.**
 
-While investigating it gathers evidence where your permissions allow, scrubs anything
-sensitive, finds the matching GitHub repository, and files the issue with `gh`.
+While investigating it gathers evidence where your permissions allow, flags anything that
+looks sensitive **for you to decide**, finds the matching GitHub repository, and files the
+issue with `gh`.
 
 When that is done it checks everything once more, confirms the issue went through, and hands
 you the link.
@@ -78,7 +79,7 @@ Without them the workflow still works — it degrades to handing you the finishe
 | # | What the AI does | How the AI does it |
 |---|---|---|
 | 1 | Reads your sentence | Works out from your description what broke, which GitHub repository it belongs to, and what evidence there is |
-| 2 | Finds the right repo | Three sources to check: the project's own git remote, the link you gave, or the LICENSE file inside the project itself |
+| 2 | Finds the right repo | Three sources to check: the project's own git remote, the link you gave, or an explicit repository URL in the project's own config (`package.json` / `pyproject.toml`). A LICENSE copyright line only confirms an owner — it never picks the repo |
 | 3 | Checks available tools | Checks the permissions and skills it can draw on — file access and a shell mean more evidence, a chat window alone means less |
 | 4 | Before it digs in | It warns you: "Don't refresh, restart, update, or close anything. Anything else you remember about the bug, send it over." |
 | 5 | Investigates | The bug only, recorded as found, no files touched |
@@ -89,6 +90,22 @@ Without them the workflow still works — it degrades to handing you the finishe
 | 10 | Shows you the issue | The full title and body for review — it publishes only after you approve |
 | 11 | Files and verifies | Files it, then checks it again once it is visible on GitHub |
 | 12 | Follows up (optional) | You can ask the AI to track the issue's progress |
+
+The commands behind those rows:
+
+```bash
+gh issue list --repo <owner/repo> --state all --search "<keywords>"        # step 6
+gh api repos/<owner/repo>/contents/.github/ISSUE_TEMPLATE --jq '.[].name'  # step 7
+scripts/privacy_scan.py draft.md                                           # step 8
+gh issue create --repo <owner/repo> --title "<title>" --body-file draft.md \
+  --attach './screenshot.png#what it shows'                                # step 11
+gh issue view <number> --json body,title,url,state                         # verify
+gh issue view <number> --comments                                          # step 12
+```
+
+Evidence depth runs L0 → L3 (chat only → files the user hands over → read-only commands →
+live process state). Anything out of reach is recorded as `not captured`, never filled in
+from memory — see `skills/sentence-to-issue/references/evidence.md`.
 
 ---
 
@@ -115,8 +132,9 @@ Without them the workflow still works — it degrades to handing you the finishe
 Content you pasted yourself gets the same warnings. If you insist after the warning, it files
 as you say.
 
-It never runs a log-upload command for you. When a repository template demands logs, it asks
-you — including "you can skip this, the issue still goes through".
+It never uploads a log file for you — no command does. When a repository template demands
+logs, it asks you: paste an excerpt into the body, upload it yourself on the web, or skip it
+("the issue still goes through").
 
 ---
 
@@ -203,6 +221,7 @@ scanner and templates.
 
 ## About the author
 
+<!-- privacy-allow -->
 **qjzzsky · 曲靖中中**
 
 - GitHub: [qjzzsky](https://github.com/qjzzsky)
@@ -212,6 +231,7 @@ scanner and templates.
 
 Built with [Hermes Agent](https://github.com/NousResearch/hermes-agent) and Xiaomi
 MiMo v2.6 Flash — authored, tested, and published with their help.
+<!-- /privacy-allow -->
 
 ---
 

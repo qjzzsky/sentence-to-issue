@@ -10,7 +10,7 @@ description: >-
 license: MIT
 ---
 
-# One-Sentence Issue · 一句话提 GitHub issue
+# Sentence to Issue · 一句话提 GitHub issue
 
 Turn one sentence about something broken into a filed GitHub issue — and hand the user the link.
 
@@ -38,11 +38,14 @@ Ask only for what is missing. Never guess the repository.
 ### 2. Resolve the target repository — three sources
 1. `git remote get-url origin` in the current working directory
 2. The user's own words: an `owner/repo`, or a full `https://github.com/...` link
-3. **The project's own license file** — `LICENSE`, `LICENSE.md`, `COPYING`: the copyright
-   line and the project homepage named there usually identify the GitHub repository.
-   (`package.json`'s `repository` field and `pyproject.toml` work the same way.)
+3. **Explicit repository URLs in the project's own config** — `package.json`'s `repository`
+   field, `pyproject.toml`'s `repository` / `homepage`. These name a repository outright.
+   A `LICENSE` copyright line names at most an **owner**, never a repository: it may
+   *confirm* a repo you already locked onto, it must never *choose* one
+   (`Never guess the repository`, Step 1).
 
 There is **no keyword search** — if none of the three yields a repository, ask the user for it.
+Anything resolved from source 3 is confirmed with the user before it is used to file.
 
 ### 3. Capability probe
 Inventory what you can actually reach: terminal, file read, browser, screenshots, installed skills.
@@ -79,6 +82,13 @@ gh api repos/<owner/repo>/contents/.github/ISSUE_TEMPLATE --jq '.[].name'
   ⚠️ `gh issue create` **rejects** `--template` combined with `--body`/`--body-file`
   (`--template is not supported when using --body or --body-file`) — merge first, then file.
   Filing through `gh` also skips web-only required fields (forms that force a log upload).
+- **Template listing quirks** (all seen in the wild):
+  - `config.yml` appears in the listing but is **not a template** (`blank_issues_enabled` +
+    `contact_links`) — skip it.
+  - `.yml` issue **forms** are not markdown: field labels live in `body[].attributes.label`.
+    There is no heading to fold — read them as a field list instead.
+  - `.md` templates carry YAML frontmatter (`--- name/about/title/labels/assignees ---`).
+    Strip it first, or you will send `labels: ''` and friends verbatim.
 - **Template demands uploading logs/debug output** → **ask the user first**:
 
 > **ZH:** 这个仓库的模板要求附日志。**要我帮你把日志附上吗？**
@@ -120,9 +130,10 @@ Never treat silence, "ok", or an earlier instruction as permission for *this* is
 
 ### 11. File it, attach images, read it back
 
-Preferred — one script runs dedupe → scan → file → read back → re-scan, in that order:
+Preferred — one script runs dedupe → scan → file → read back → re-scan, in that order.
+Path is relative to this SKILL.md (the `scripts/` folder next to it):
 ```bash
-skills/sentence-to-issue/scripts/file_issue.sh \
+scripts/file_issue.sh \
   --repo <owner/repo> --title "<title>" --body-file draft.md \
   [--attach './screenshot.png#what it shows']
 ```
@@ -172,8 +183,8 @@ block, so the user can select and copy it in one action.
 
 ## Never
 
-- Never run a log-upload command (e.g. `hermes debug share`) on the user's behalf — that option
-  belongs to Step 7, and only after the user says yes.
+- Never upload a log file on the user's behalf — no command does that. Step 7 offers only
+  two paths: paste an excerpt into the body, or the user uploads it on the web themselves.
 - Never claim evidence you did not actually read.
 - Never file without Step 10.
 - Never put your own local paths, usernames, or this repository's internals into a report.
