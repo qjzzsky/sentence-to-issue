@@ -136,6 +136,11 @@ It never uploads a log file for you — no command does. When a repository templ
 logs, it asks you: paste an excerpt into the body, upload it yourself on the web, or skip it
 ("the issue still goes through").
 
+**What this is not:** the scanner is heuristic, not a guarantee. A value that is split across
+lines, spaced out, or encoded in some other way can still slip past it — we are careful, not
+omniscient. The last line of defence is Step 10: you read the full title and body before
+anything is filed.
+
 ---
 
 ## What it does and doesn't do
