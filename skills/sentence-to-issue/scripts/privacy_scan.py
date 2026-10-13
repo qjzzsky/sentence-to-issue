@@ -40,8 +40,9 @@ in a rebuilt view prints a line number like `~3 [uncommented]` — approximate o
 the exit code 2 gate is what matters, not the exact line.
 
 THIS SCANNER IS HEURISTIC, NOT PROOF. A secret split or obfuscated in a way these views
-don't reconstruct can still slip through. The last line of defence is Step 10: the user
-reads the full body before anything is filed.
+don't reconstruct can still slip through. The last checkpoint before anything is filed is
+Step 10: the user reads the full body. It is a checkpoint, not a proofreader — nobody is
+expected to catch what this file missed; the point is that nothing goes out unlooked-at.
 """
 
 import re

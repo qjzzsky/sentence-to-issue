@@ -124,6 +124,7 @@ Two boundaries to state plainly, because both are limits on what redaction buys 
 **not anonymous** — it will be filed under their GitHub account and the remaining details
 can still point at them; and the scanner is a gate, not a guarantee.
 
-**The last line of defence is Step 10: the user reads the full title, the full
-body and the redaction-list summary before anything is filed.** The scanner is a
-gate, never a substitute for that.
+**The last checkpoint before anything is filed is Step 10: the user reads the full title,
+the full body and the redaction-list summary.** It is a checkpoint, not a proofreader — the
+user is not expected to catch what the scanner missed; the point is that nothing is filed
+before they have looked. The scanner is a gate, never a substitute for that.

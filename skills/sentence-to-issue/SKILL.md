@@ -119,7 +119,10 @@ Three moves, in order (full rules in `references/privacy.md`):
 1. **Redact by default.** Replace identity/history details and secrets with `<redacted>`
    and leave a visible "redacted" trace. Then show the user the **redaction list** in
    chat — position / what was removed / why — and keep that list out of every file that
-   will be submitted.
+   will be submitted. When you show the list, add one line: redaction lowers exposure but
+   is **not anonymity** (the issue is filed under the user's own account), and the scanner
+   may miss — see "The scanner may miss, and redaction is not anonymity" in
+   `references/privacy.md`.
 2. **Verify with the scanner** (again after pasting any excerpt).
    `scripts/privacy_scan.py <draft>` → exit 0 continues; exit 1 or 2 means the redaction
    pass missed something, so **redact it and re-run**. That exit code is not a prompt to
@@ -204,6 +207,11 @@ gh issue view <number> --comments
 
 "Deliver as one block" means: Title on its own line, then the entire body inside a single code
 block, so the user can select and copy it in one action.
+
+Say this once when you hand it over, in the user's language: this body is redacted,
+**not anonymous** — pasting it publishes it under their own account, and what is left can
+still point at them. This path has no Step 10 gate and no read-back scan, so this notice is
+the only safeguard.
 
 ---
 

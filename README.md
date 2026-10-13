@@ -147,8 +147,9 @@ images and video, so a log file cannot ride along that way.
 
 **What this is not:** the scanner is heuristic, not a guarantee. A value that is split across
 lines, spaced out, or encoded in some other way can still slip past it — we are careful, not
-omniscient. The last line of defence is Step 10: you read the full title and body before
-anything is filed.
+omniscient. The last checkpoint **before anything is filed** is Step 10: you read the full
+title and body. It is a checkpoint, not a proofreader — you are not expected to catch what
+the scanner missed; the point is that nothing goes out before you have looked.
 
 ---
 
