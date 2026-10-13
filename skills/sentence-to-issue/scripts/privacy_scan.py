@@ -153,19 +153,34 @@ def scan(text):
         views = [(None, level1_text)] if level == 1 else list(_views(text))
         for label, haystack in views:
             for match in re.finditer(pattern, haystack):
-                snippet = match.group(0)
+                # A rebuilt view can glue a value straight onto the comment
+                # marker, which is noise; cut the snippet at the marker so what
+                # we print is what was actually leaked.
+                snippet = match.group(0).split("<!--")[0].rstrip() or match.group(0)
                 if len(snippet) > 60:
                     snippet = snippet[:57] + "..."
-                key = (level, snippet)
-                if key in seen:
-                    continue
-                seen.add(key)
                 if label is None:
                     line = haystack.count("\n", 0, match.start()) + 1
                     line_str = str(line)
                 else:
                     line, _ = _locate(text, snippet)
                     line_str = f"~{line} [{label}]"
+                # Same value on the same line, once raw and once rebuilt, is one
+                # finding — collapse it. The same value on DIFFERENT lines is a
+                # separate exposure each time, so keep every line.
+                num = int(re.sub(r"[^0-9]", "", line_str.split(" ")[0]) or 0)
+                key = (level, snippet, num)
+                if key in seen:
+                    continue
+                # A rebuilt view glues neighbouring lines together, so it can
+                # hand back "value" + "line3" as one long string. If that value
+                # was already reported verbatim from the raw text, skip it —
+                # the rebuilt views exist to CATCH what the raw pass misses,
+                # never to re-report it with extra characters attached.
+                if label is not None and any(
+                        snippet.startswith(prev) for lv, prev, _ in seen if lv == level):
+                    continue
+                seen.add(key)
                 hits.append((level, en, zh, snippet, line_str))
     return hits
 
