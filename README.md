@@ -1,5 +1,7 @@
 # Sentence to Issue
 
+[中文简体](./README.zh-CN.md)
+
 > **File what you found in one sentence — straight to a GitHub repo's issue.**
 
 Install the skill, and when a bug shows up, tell your AI assistant what broke. It starts

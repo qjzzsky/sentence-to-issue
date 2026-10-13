@@ -1,5 +1,7 @@
 # 一句话提 GitHub issue
 
+[English](./README.md)
+
 > **用一句话，把发现的问题发到 GitHub 仓库的 issue 里。**
 
 装上这个技能后，遇到 bug 就对你的 AI 助手说一声，它就会开始调查。
