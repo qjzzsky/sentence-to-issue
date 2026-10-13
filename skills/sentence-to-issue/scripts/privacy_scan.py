@@ -17,8 +17,12 @@ Detection patterns are GENERIC placeholders. This file intentionally contains no
 usernames, hostnames or paths of its own — the word list lives here, not in your report.
 
 Deliberate exemptions: wrap a block in  <!-- privacy-allow -->  ...  <!-- /privacy-allow -->
-and it is skipped (line numbers stay correct). Use it ONLY for content published on
-purpose, e.g. an author block. Anything else that trips a rule must be redacted, not marked.
+and it is skipped for LEVEL-1 rules ONLY (line numbers stay correct, and every scan prints
+a "[skip] N lines exempted ..." line saying exactly what was passed over). LEVEL-2 secrets
+are NEVER exempt: a password, token or private key inside such a block is still reported on
+the raw text and still demands the second confirmation. Use the marker ONLY for content
+published on purpose, e.g. an author block; anything else that trips a rule must be redacted,
+not marked.
 """
 
 import re
@@ -63,13 +67,24 @@ RULES = [
     # github.com/<owner> is deliberately absent: it appears in every issue body.
     (1, "Social profile link", "社交账号主页链接",
      r"(?i)(?:weibo\.com/(?:u/)?|space\.bilibili\.com/|zhihu\.com/people/"
-     r"|(?:twitter\.com|x\.com)/|weixin\.qq\.com/s/)[A-Za-z0-9_-]+"),
+     r"|(?:twitter\.com|x\.com)/|weixin\.qq\.com/s/|t\.me/|gitee\.com/)"
+     r"[A-Za-z0-9_-]+"),
 ]
 
 
-ALLOW_RE = __import__("re").compile(
-    r"<!--\s*privacy-allow\s*-->.*?<!--\s*/privacy-allow\s*-->", __import__("re").S
+ALLOW_RE = re.compile(
+    r"<!--\s*privacy-allow\s*-->.*?<!--\s*/privacy-allow\s*-->", re.S
 )
+
+
+def allow_blocks(text):
+    """Every exempted span as (start_line, end_line, line_count)."""
+    out = []
+    for m in ALLOW_RE.finditer(text):
+        start = text.count("\n", 0, m.start()) + 1
+        end = text.count("\n", 0, m.end()) + 1
+        out.append((start, end, end - start + 1))
+    return out
 
 
 def strip_allowed(text):
@@ -78,13 +93,20 @@ def strip_allowed(text):
 
 
 def scan(text):
+    """Level-2 rules ALWAYS run on the raw text — the marker can only excuse
+    identity findings, never a secret. Level-1 rules run on the text with the
+    exempted spans removed (line numbers stay identical: strip_allowed() drops
+    characters but keeps every newline)."""
     hits = []
+    level1_text = strip_allowed(text)
     for level, en, zh, pattern in RULES:
-        for match in re.finditer(pattern, text):
+        haystack = text if level == 2 else level1_text
+        for match in re.finditer(pattern, haystack):
             snippet = match.group(0)
             if len(snippet) > 60:
                 snippet = snippet[:57] + "..."
-            hits.append((level, en, zh, snippet, text.count("\n", 0, match.start()) + 1))
+            line = haystack.count("\n", 0, match.start()) + 1
+            hits.append((level, en, zh, snippet, line))
     return hits
 
 
@@ -105,7 +127,12 @@ def main():
             return 66
         label = source
 
-    hits = scan(strip_allowed(text))
+    # The marker never hides anything from level 2; it only excuses level 1,
+    # and whatever it skipped is printed so the reader can see it happened.
+    for start, end, n in allow_blocks(text):
+        print(f"[skip] {n} lines exempted by an inline marker (line {start}-{end})")
+
+    hits = scan(text)
     if not hits:
         print(f"[OK] {label} — no sensitive patterns found / 未发现敏感内容")
         return 0
