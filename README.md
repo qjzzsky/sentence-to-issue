@@ -188,11 +188,35 @@ read-back verification.
 
 ## How we compare with similar projects
 
-| Existing | What it does | What this adds |
+Several projects already treat bug **triage** and conversational issue **filing** as a
+first-class workflow. We name them instead of describing them in the abstract — here is
+what each does, and what this skill adds on top.
+
+| Project | What it does | What this adds |
 |---|---|---|
-| issue skills bound to one project | file issues for that project | **any repository**, resolved from `git remote` or your link |
-| "deep dive then save locally" | writes a file, never files | actually files, then reads back |
-| single-repo bug report skill | sanitized draft, one project | **layered investigation**, an executable privacy scanner, template awareness |
+| [AgentiveStack/skills · `qa`](https://github.com/AgentiveStack/skills) (72★) | describes bugs conversationally and files durable GitHub issues in the project's own language while exploring the codebase in the background | the **target repository is yours to choose** — from `git remote` or your link, not locked to the current repo — plus scene-freezing, L0→L3 read-only evidence layers, and an executable privacy scanner |
+| [eric-tramel/moraine · `bug-report`](https://github.com/eric-tramel/moraine) (117★) | prepares a sanitized bug report and holds **the same consent boundary as this skill**: show the final title and body, file only after explicit approval | it serves Moraine itself (it is a Moraine plugin); this runs against **any repository**, and ships the two-level scanner as a script rather than a described convention |
+| [redpanda-data/ui-harness · `triage`](https://github.com/redpanda-data/ui-harness) (34★) | investigates a bug with `gh` and Jira and files a ticket carrying a TDD fix plan | forensics are **read-only by contract** (no writes, no restarts), the target repo's own issue template is folded in, and the body is scanned again after it lands |
+| [rbaumier/skills · `issue`](https://github.com/rbaumier/skills) (5★) · [sidwood/skills · `bug-report`](https://github.com/sidwood/skills) | minimal-scope issues for the current project / conversational GitHub bug filing | evidence depth layers (L0 chat → L3 live process state), dedupe before filing, read-back verification |
+| [bowen31337/bug-report-agent-skills](https://github.com/bowen31337/bug-report-agent-skills) (4★) | GitHub Issues / Linear / Bugzilla with detective-style root-cause work | template folding and post-file re-scan, plus the "don't refresh, restart, update, or close anything" freeze |
+
+### What we honestly share, and what is actually different
+
+This is not a new idea. The field already has several projects in the same lane, and
+**`eric-tramel/moraine` already has the same sanitize + explicit-user-approval gate**
+this skill calls Step 10. Four things no single one of them covers:
+
+1. **Any target repository.** The repo comes from `git remote` or from your link — not
+   locked to the current project, not locked to one vendor.
+2. **Scene freezing + L0 → L3 read-only layers.** "Don't refresh, restart, update, or
+   close anything" while evidence is captured read-only; anything unreachable is marked
+   `not captured` instead of guessed.
+3. **An executable privacy scanner** (`scripts/privacy_scan.py`, two levels). Most
+   similar skills describe sanitizing in prose — this one runs it.
+4. **Dedupe → fold the target repo's own template → file → read the body back and
+   scan it again.**
+
+None of the above is ours alone, and none of it needs to be.
 
 ---
 

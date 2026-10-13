@@ -151,11 +151,31 @@ gh issue view <编号> --comments                                             # 
 
 ## 和类似的项目比，我们有什么不同
 
-| 已有的 | 它做什么 | 我们多的 |
+同赛道其实已经有不少项目把 bug **分诊**和「对话式提 issue」做成了标准流程。
+这里**点名说**，不用抽象类别对比——每个做什么，我们在它之上多什么。
+
+| 项目 | 它做什么 | 我们多的 |
 |---|---|---|
-| 绑定单一项目的 issue 技能 | 只给那个项目提 | **任意仓库**，`git remote` 或你给的链接定位 |
-| 「深挖完存本地」 | 写个文件，不提交 | **真的提交**，然后读回核对 |
-| 单项目的 bug report 技能 | 脱敏草稿、一个项目 | **分层排查**、可执行的隐私扫描器、模板适配 |
+| [AgentiveStack/skills · `qa`](https://github.com/AgentiveStack/skills)（72★） | 对话式描述 bug，用项目自己的语言写成可长期追溯的 GitHub issue，后台顺带读代码库 | **目标仓库由你指定**——来自 `git remote` 或你给的链接，不锁当前仓库；另加现场冻结、L0→L3 只读取证分层、可执行的隐私扫描器 |
+| [eric-tramel/moraine · `bug-report`](https://github.com/eric-tramel/moraine)（117★） | 生成脱敏的 bug 报告，并遵守**和本技能一样的确认边界**：先给你看最终标题与正文，明确确认后才建 issue | 它只服务 Moraine 自己（它是 Moraine 的插件）；我们跑在**任意仓库**上，并把两级扫描器做成脚本，而不是文字约定 |
+| [redpanda-data/ui-harness · `triage`](https://github.com/redpanda-data/ui-harness)（34★） | 用 `gh` 和 Jira 排查 bug，提交带 TDD 修复计划的工单 | 取证**契约上只读**（不写、不重启），折进目标仓库自带的 issue 模板，发出后再扫一遍正文 |
+| [rbaumier/skills · `issue`](https://github.com/rbaumier/skills)（5★）、[sidwood/skills · `bug-report`](https://github.com/sidwood/skills) | 给当前项目提最小范围 issue / 对话式提 GitHub bug | 取证分层（L0 聊天 → L3 运行中的进程状态）、提交前查重、读回核对 |
+| [bowen31337/bug-report-agent-skills](https://github.com/bowen31337/bug-report-agent-skills)（4★） | GitHub Issues / Linear / Bugzilla 三平台，侦探式查根因 | 折模板 + 落地后复扫，外加「别刷新、别重启、别更新、别关窗口」的现场冻结 |
+
+### 我们承认的相似，和真正不同的地方
+
+这不是什么新点子。同赛道已有多个项目，**其中 `eric-tramel/moraine` 具备和本技能
+完全一样的「脱敏 + 用户明确确认」闸门**（也就是我们的第 10 步）。下面四点，目前
+没有哪个项目单独做到：
+
+1. **任意目标仓库**：仓库来自 `git remote` 或你给的链接，不锁当前项目、不锁某一家。
+2. **现场冻结 + L0 → L3 只读分层**：抓证据时先喊「别刷新、别重启、别更新、别关窗口」，
+   只读采集；抓不到的标 `not captured`，绝不用记忆编。
+3. **可执行的隐私扫描器**（`scripts/privacy_scan.py`，两级）：同类技能多在正文里
+   用嘴说「脱敏」，我们是真跑脚本。
+4. **查重 → 折进目标仓库自带的模板 → 提交 → 读回正文复扫。**
+
+上面这几条，没有一条是我们独占的，也不需要独占。
 
 ---
 
