@@ -88,8 +88,12 @@ def allow_blocks(text):
 
 
 def strip_allowed(text):
-    """Drop blocks marked as intentionally public, keeping line numbers stable."""
-    return ALLOW_RE.sub(lambda m: "\n" * m.group(0).count("\n"), text)
+    """Blank out blocks marked as intentionally public.
+
+    Non-newline characters become spaces (length and line breaks preserved),
+    so boundary characters on either side of the marker can never be spliced
+    together into a hit that does not exist in the file."""
+    return ALLOW_RE.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
 
 
 def scan(text):
