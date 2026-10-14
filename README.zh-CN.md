@@ -2,7 +2,9 @@
 
 [English](./README.md)
 
-> **用一句话，把发现的问题发到 GitHub 仓库的 issue 里。**
+> **向任何 GitHub 项目报 bug —— 按维护者要的那种样子：只读取证、不编造诊断、你点头才发。**
+>
+> 一份在根因上瞎猜的报告，比不报还糟。
 
 **只要这个程序开源并发布在 GitHub 上，不管是软件、游戏、网页，还是
 AI 工具的技能，都可以通过这个技能来反馈。**
@@ -10,7 +12,7 @@ AI 工具的技能，都可以通过这个技能来反馈。**
 遇到 bug 时，对你的 AI 助手说一声，它就会开始调查。
 **这期间别刷新、别重启、别更新、别关窗口。**
 
-调查时，它会在权限允许的前提下抓取相关证据，**把敏感内容脱敏**，**把抹掉了什么原样列给你看**；
+调查时，它会在权限允许的前提下抓取相关证据，**把它找到的敏感内容脱敏**，**把抹掉了什么逐条列给你看**；
 只有目标仓库自己的模板明确要求时，才会问你要这些信息。然后它找到对应的 GitHub 仓库，
 用 `gh` 提交 issue。
 
@@ -23,6 +25,7 @@ AI 工具的技能，都可以通过这个技能来反馈。**
 安装：
 
 ```bash
+npx skills add qjzzsky/sentence-to-issue      # skills.sh —— 自动识别你用的 agent
 gh skill install qjzzsky/sentence-to-issue --agent claude-code
 ```
 
@@ -51,6 +54,7 @@ https://github.com/<owner>/<repo>/issues/123
 | **A. `gh skill`**（Claude Code、Cursor、Codex、Copilot、Gemini CLI 等 48 种） | `gh skill install qjzzsky/sentence-to-issue --agent claude-code` |
 | **B. Hermes** | `hermes skills install qjzzsky/sentence-to-issue` |
 | **C. 手动 clone** | `git clone https://github.com/qjzzsky/sentence-to-issue.git <你的技能目录>/sentence-to-issue` |
+| **D. `npx skills`**（skills.sh，79 种 agent，自动识别） | `npx skills add qjzzsky/sentence-to-issue` |
 
 > 技能目录**因平台而异**（Windows 与 Unix 不是一个路径），用 `hermes skills list` 看你的在哪。
 > 不带 `--agent` 时会交互式让你选 agent；脚本里用 `--agent cursor` 这类参数直接指定。

@@ -2,7 +2,10 @@
 
 [中文简体](./README.zh-CN.md)
 
-> **File what you found in one sentence — straight to a GitHub repo's issue.**
+> **Report a bug to any GitHub project — in the shape maintainers ask for: read-only
+> evidence, no invented diagnosis, and nothing filed until you approve it.**
+>
+> A bug report that guesses at a root cause is worse than no report at all.
 
 **As long as the program is open source and hosted on GitHub, anything can be reported
 through this skill — software, games, web apps, AI-agent skills alike.**
@@ -26,6 +29,7 @@ you the link.
 Install:
 
 ```bash
+npx skills add qjzzsky/sentence-to-issue      # skills.sh — picks your agent automatically
 gh skill install qjzzsky/sentence-to-issue --agent claude-code
 ```
 
@@ -62,6 +66,12 @@ gh skill install qjzzsky/sentence-to-issue sentence-to-issue --agent claude-code
 
 ```bash
 hermes skills install qjzzsky/sentence-to-issue
+```
+
+**Path C — `npx skills`** (skills.sh, 79 agents)
+
+```bash
+npx skills add qjzzsky/sentence-to-issue
 ```
 
 `hermes skills install` also takes a direct `SKILL.md` URL. If you would rather clone by

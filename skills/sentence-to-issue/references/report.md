@@ -5,6 +5,8 @@ Default shape, in the **target repository's language** (English unless the repo 
 ```markdown
 ## Description
 What broke, in one or two plain sentences. No jargon you cannot explain to the user.
+If the cause is unknown, say so in one sentence (e.g. "Cause not determined — this report
+contains observations only"). Never leave it implied.
 
 ## Steps to Reproduce
 1. ...
@@ -48,3 +50,5 @@ the risk, and accept "no" as a complete answer.
 - Quote errors exactly — do not tidy up an error message.
 - Keep it as short as it can be while still reproducible.
 - The title is a symptom, not a verdict: "viewport jumps to the upper half mid-chat", not "rendering is broken".
+- **No diagnosis.** Do not add a root-cause section, a hypothesis, or a suggested fix. If the
+  repository's own template asks for one, say plainly that you are reporting observations only.

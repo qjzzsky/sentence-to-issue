@@ -35,6 +35,9 @@ assume they know GitHub vocabulary.
 Extract three things: **what broke**, **which repository**, **what evidence the user already has**.
 Ask only for what is missing. Never guess the repository.
 
+If several problems or several candidate repositories turn up, list them and ask the user
+which **single** one to file. Never file them all.
+
 ### 2. Resolve the target repository — three sources
 1. `git remote get-url origin` in the current working directory
 2. The user's own words: an `owner/repo`, or a full `https://github.com/...` link
@@ -146,6 +149,7 @@ pasted into the body).
 Six sections, in the target repo's language — see `references/report.md` and `templates/bug-report.md`:
 `Description / Steps to Reproduce / Expected / Actual / Environment / Related`.
 When the repo supplies a template, its headings win and these six are only the fallback.
+State plainly when the cause is unknown ("cause not determined") instead of leaving it unsaid.
 
 ### 10. User approval — hard gate
 Show the **full Title and Body**, plus a short summary of the **redaction list** — what
@@ -224,3 +228,8 @@ the only safeguard.
 - Never claim evidence you did not actually read.
 - Never file without Step 10.
 - Never put your own local paths, usernames, or this repository's internals into a report.
+- Never file more than one issue per user request — no loops over repositories, no
+  batch/backlog filing, no "while I'm here, I'll also report this to X". One sentence from
+  the user means at most one issue.
+- Never write a root-cause analysis, a hypothesis about why it happens, or a suggested fix.
+  Report what was observed, not what you think it means.
