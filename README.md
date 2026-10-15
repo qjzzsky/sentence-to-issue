@@ -8,7 +8,8 @@
 > A bug report that guesses at a root cause is worse than no report at all.
 
 **As long as the program is open source and hosted on GitHub, anything can be reported
-through this skill — software, games, web apps, AI-agent skills alike.**
+through this skill — software, games, web apps, AI-agent skills alike.** It runs in
+Claude Code, Cursor, Codex and 75+ other agents.
 
 When a bug shows up, tell your AI assistant what broke — it starts investigating.
 **Don't refresh, restart, update, or close anything meanwhile. If you have more detail,
